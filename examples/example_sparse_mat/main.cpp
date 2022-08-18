@@ -9,13 +9,7 @@ using namespace std;
 #include <SparseMat/SparseMatC.hpp>
 #include <SparseMat/MatSolvers.hpp>
 
-#ifdef IS_WINDOWS_SISTEM
-#ifdef _DEBUG
-#pragma comment(lib, "libSparseMat_Deb.lib")
-#else
-#pragma comment(lib, "libSparseMat.lib")
-#endif
-#endif
+
 
 
 /*//=======================================================
