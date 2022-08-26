@@ -19,7 +19,7 @@ ICCCGソルバ
 /*//=======================================================
 // ● ICCGで解く(右辺ノルム内部計算パターン)
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size ; i++){
@@ -27,19 +27,19 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	}
 	double normB2 = abs(norm);
 	normB2 = sqrt(normB2);
-	return solveICCG(size, conv_cri, max_ite, accera, normB2, matA, vecB, results);
+	return solveICCG(size, conv_cri, max_ite, accera, normB2, matA, vecB, results, init);
 }
 
 /*//=======================================================
 // ● ICCGで解く・外部実行本体
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	/* コレスキー用スパース行列作成 */
 	dcomplex* diagD = new dcomplex[size0];
 	SparseMatC matL = matA.IC_decomp(diagD, accera);
 	SparseMatC matL_tr = matL.trans();
 
-	bool bl= solveICCG(size0, conv_cri, max_ite, accera, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results);
+	bool bl= solveICCG(size0, conv_cri, max_ite, accera, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results, init);
 	delete[] diagD;
 	return bl;
 }
@@ -47,7 +47,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 /*//=======================================================
 // ● ICCGで解く(入力右辺がEigen)
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size0 ; i++){
@@ -56,7 +56,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	}
 	double normB2 = abs(norm);
 	normB2 = sqrt(normB2);
-	bool bl = solveICCG(size0, conv_cri, max_ite, accera, normB2, matA, vecBa, results);
+	bool bl = solveICCG(size0, conv_cri, max_ite, accera, normB2, matA, vecBa, results, init);
 	delete[] vecBa;
 	return bl;
 }
@@ -67,7 +67,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 // ● ICCGで解く（本体）
 //=======================================================*/
 bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int max_ite, const double accera, const double normB, 
-						   const dcomplex* diagD, const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results){
+						   const dcomplex* diagD, const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results, bool init){
 
 	/* 要素確保 */
 	dcomplex alpha;
@@ -79,9 +79,11 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 
 
 	/* 初期設定 */
-	/*for(int i = 0 ; i < size ; i++){
-	results[i] = 0;
-	}*/
+	if(init){
+		for(int i = 0 ; i < size ; i++){
+			results[i] = 0;
+		}
+	}
 
 	slv_int* start_posA = new slv_int[size];
 	slv_int* end_posA = new slv_int[size];

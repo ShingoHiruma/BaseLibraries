@@ -1,6 +1,4 @@
-﻿#include "../../InternalHeaderCheck.h"
-
-namespace Eigen {
+﻿namespace Eigen {
 namespace internal {
   
 #if EIGEN_ARCH_ARM && EIGEN_COMP_CLANG

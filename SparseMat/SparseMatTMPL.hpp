@@ -365,7 +365,7 @@ slv_int SparseMatTMPL<DType>::isInclude(slv_int gyo, slv_int target_r) const{
 		}
 	}else{
 		slv_int counter=0;
-		for(auto itr : tempMat[gyo]){
+		for(const auto& itr : tempMat[gyo]){
 			if( itr.first == target_r){
 				return( counter );
 			}
