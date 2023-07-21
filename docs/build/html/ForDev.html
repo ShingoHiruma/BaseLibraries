@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>開発者向け &mdash; BaseLibrariesPages  ドキュメント</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="利用例" href="UserSample.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BaseLibrariesPages
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Basic.html">基本ヘッダ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BaseLibraries.html">BasicFuncs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SparseMat.html">SparseMat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="UserSample.html">利用例</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">開発者向け</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sparsemat">SparseMatについて</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">SparseMatの構成</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">疎行列の要素アクセスについて：</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BaseLibrariesPages</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">開発者向け</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ForDev.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>開発者向け<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h1>
+<p>本ライブラリの内部情報について少し記述しています。
+改造案はウェルカムです</p>
+<section id="sparsemat">
+<h2>SparseMatについて<a class="headerlink" href="#sparsemat" title="この見出しへのパーマリンク"></a></h2>
+<section id="id2">
+<h3>SparseMatの構成<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<p>疎行列SparseMatとSparseMatCは、中でSparseMatBaseD/SparseMatBaseCを疎行列の実体として持っています。
+SparseMatとSparseMatCはその実体に対する操作を仲介しているだけで、実際のデータはSparseMatBaseD/SparseMatBaseCにあります。
+SparseMatBaseD/SparseMatBaseCは、C++テンプレートを使ってEigenの疎行列のラッパを作っています。</p>
+<ul class="simple">
+<li><p>SparseMatTMPL：Eigen疎行列のラッパ。mapを使って仮行列データを作成し、fixが呼ばれるとEigenの疎行列化します。これはヘッダオンリで書いてます。</p></li>
+<li><p>SparseMatBaseD：SparseMatTMPL<double>のテンプレート化です。</p></li>
+</ul>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>　template class SparseMatTMPL&lt;double&gt;;
+　using SparseMatBaseD = SparseMatTMPL&lt;double&gt;;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>SparseMatBaseC：SparseMatTMPL<a class="reference external" href="SRLfem::dcomplex">SRLfem::dcomplex</a>のテンプレート化です。</p></li>
+</ul>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>　template class SparseMatTMPL&lt;dcomplex&gt;;
+　using SparseMatBaseC = SparseMatTMPL&lt;dcomplex&gt;;
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id3">
+<h3>疎行列の要素アクセスについて：<a class="headerlink" href="#id3" title="この見出しへのパーマリンク"></a></h3>
+<p>Eigen疎行列は、 SparseMatTMPLのメンバ「Eigen::SparseMatrix&lt;DType, Eigen::RowMajor&gt; matrix」になります。
+見ての通り、RowMajorで作成しています。
+疎行列の各要素にアクセスしたい場合はEigen疎行列のポインタ情報にアクセスする必要があります。
+アクセス用のメソッドをSparseMatTMPLで定義しているので利用してください。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+//疎行列の実体を以下とします（実際はSparseMatTMPLのメンバなので個別に作る必要はありません）
+SparseMat matA;
+//この行列の疎行列実体にアクセス(ポインタです)し、SparseMatTMPLのメソッドを呼び出します
+slv_int size = matA.size;
+slv_int* start_posL1 = new slv_int[size];
+slv_int* end_posL1 = new slv_int[size];
+//疎行列のRow方向ポインタを取得します
+auto col_ptrL1 = matA.matrix-&gt;getColPtr();
+//疎行列の値ポインタを取得します
+auto val_ptrL1 = matA.matrix-&gt;getValuePtr();
+//Row方向ポインタの各行の範囲を取得します
+matA.matrix-&gt;getCols(start_posL1, end_posL1);
+
+//取得した範囲を、各行ごとにループすれば参照できます
+for(slv_int ii = 0 ; ii &lt; size ; ii++){
+    const slv_int c_size = end_posA[ii];
+    //行iiにおける列方向の値があるところは以下のように
+    for(slv_int j = start_posA[ii] ; j &lt; c_size ; j++){
+        slv_int retu = col_ptrA[j];
+        double temp = val_ptrA[j];
+        cout &lt;&lt; ii &lt;&lt;&quot;, &quot; &lt;&lt; retu &lt;&lt;  &quot; = &quot; &lt;&lt; temp &lt;&lt; end;
+    }
+}
+	
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="UserSample.html" class="btn btn-neutral float-left" title="利用例" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, JP-MARs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BasicFuncs &mdash; BaseLibrariesPages  ドキュメント</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="SparseMat" href="SparseMat.html" />
+    <link rel="prev" title="基本ヘッダ" href="Basic.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BaseLibrariesPages
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Basic.html">基本ヘッダ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">BasicFuncs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mt">Mtクラス</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#void-init-rand">void init_rand()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-init-rand-int-xx">void init_rand(int xx)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-genrand-int32">int genrand_int32()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-mrand-int-m">int mrand(int m)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-mrand-int-a-int-b">int mrand(int a, int b)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-genrand-real1">double genrand_real1()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-unif-rand-double-a-double-b">double unif_rand(double a, double b)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-make-diff-rands-const-int-n-const-int-max-int-rands">void make_diff_rands(const int n, const int max, int* rands)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-make-diff-rands-const-int-n-double-rands">void make_diff_rands(const int n, double* rands)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-normal-rand-double-u-double-sigma-bool-limit-sig-false">double normal_rand(double u, double sigma, bool limit_sig=false)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-lognorm-rand-double-u-double-sigma">double lognorm_rand(double u, double sigma)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-norm-cdf-double-u-double-sigma-double-x">double norm_CDF(double u, double sigma, double x)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-norm-cdf-double-x">double norm_CDF(double x);</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-exp-rand-double-lam">double exp_rand(double lam)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-chai-rand-double-n">double chai_rand(double n)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-fisher-rand-double-m-double-n">double fisher_rand(double m, double n)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-student-t-rand-double-n">double student_t_rand(double n)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-poisson-rand-double-u">double poisson_rand(double u)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-gamma-rand-double-a-double-b">double gamma_rand(double a, double b)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-weibull-rand-double-a-double-b">double weibull_rand(double a, double b)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bool-bernoulli-rand-double-a">bool bernoulli_rand(double a)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-binomial-rand-double-a-int-n">int binomial_rand(double a, int n)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#commonfuncs">CommonFuncsクラス</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#int-round-double-m">int round(double m)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-sigmoid-double-x-double-constk">double sigmoid(double x, double constK)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-setgauss-double-tg-double-wg-int-nump">void setGauss(double* tg, double* wg, int numP )</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-setgausshex-double-tg-x-double-tg-y-double-tg-z-double-wg-int-nump">void setGaussHEX(double* tg_x, double* tg_y, double* tg_z, double* wg, int numP )</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-setgausspri-double-tg-x-double-tg-y-double-tg-z-double-wg-xy-double-wg-z-int-nump-xy-int-nump-z">void setGaussPRI(double* tg_x, double* tg_y, double* tg_z, double* wg_xy, double* wg_z, int numP_xy, int numP_z)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-calcgausspoint-double-gauss-p-double-gauss-w-const-int-num-gauss">void calcGaussPoint(double* gauss_p, double* gauss_w, const int num_gauss)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-make-three-phase-double-three-rad-double-u-phase-rad-bool-minus-true">void make_three_phase(double* three_rad, double u_phase_rad, bool minus=true)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-dft-int-size-double-wave-data-double-dft-r-double-dft-im">void dft(int size, double *wave_data, double *dft_r, double *dft_im)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-dft-int-size-double-wave-data-double-dft-r-double-dft-im-double-ampl-double-phase">void dft(int size, double *wave_data, double *dft_r, double *dft_im, double *ampl, double *phase)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-idft-int-size-double-dft-r-double-dft-im-double-wave-data">void idft(int size, double *dft_r, double *dft_im, double *wave_data)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-dft-filtering-int-size-int-target-double-dft-r-double-dft-im">void dft_filtering(int size, int target, double *dft_r, double *dft_im)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-calc-phase-deg-int-size-double-wave1-double-wave2">double calc_phase_deg(int size, double* wave1, double* wave2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-threefullwavemaker-int-sub-wave-count-int-wave-points-int-full-points-double-sub-waves-double-full-wave">void ThreeFullWaveMaker(int sub_wave_count, int wave_points, int&amp; full_points, double** sub_waves, double*** full_wave)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SparseMat.html">SparseMat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="UserSample.html">利用例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ForDev.html">開発者向け</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BaseLibrariesPages</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BasicFuncs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/BaseLibraries.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="basicfuncs">
+<h1>BasicFuncs<a class="headerlink" href="#basicfuncs" title="この見出しへのパーマリンク"></a></h1>
+<p>有限要素法や最適化など、数値計算や進化計算関連で使う基本操作をライブラリ化したものです。</p>
+<hr class="docutils" />
+<section id="mt">
+<h2>Mtクラス<a class="headerlink" href="#mt" title="この見出しへのパーマリンク"></a></h2>
+<p>C++11のメルセンヌツイスタのラッパとして働く、乱数関連のライブラリです。「BasicFuncs/Mt.hpp」をインクルードして使ってください。
+全てStatic関数です。インスタンスを作成せずに呼び出してください。</p>
+<section id="void-init-rand">
+<h3>void init_rand()<a class="headerlink" href="#void-init-rand" title="この見出しへのパーマリンク"></a></h3>
+<p>乱数シード初期化の初期化メソッドです。ランダムに初期化します</p>
+</section>
+<section id="void-init-rand-int-xx">
+<h3>void init_rand(int xx)<a class="headerlink" href="#void-init-rand-int-xx" title="この見出しへのパーマリンク"></a></h3>
+<p>乱数シード初期化メソッドです。引数で指定した整数を乱数シードにして初期化します。</p>
+</section>
+<section id="int-genrand-int32">
+<h3>int genrand_int32()<a class="headerlink" href="#int-genrand-int32" title="この見出しへのパーマリンク"></a></h3>
+<p>整数乱数をメルセンヌ・ツイスタで生成します。範囲は「0～int最大まで」です。</p>
+</section>
+<section id="int-mrand-int-m">
+<h3>int mrand(int m)<a class="headerlink" href="#int-mrand-int-m" title="この見出しへのパーマリンク"></a></h3>
+<p>メルセンヌ・ツイスタで、整数ｍ未満の整数値をランダムに返します。</p>
+</section>
+<section id="int-mrand-int-a-int-b">
+<h3>int mrand(int a, int b)<a class="headerlink" href="#int-mrand-int-a-int-b" title="この見出しへのパーマリンク"></a></h3>
+<p>メルセンヌ・ツイスタで、a&lt;=x&lt;=bの範囲の一様整数乱数を返します。</p>
+</section>
+<section id="double-genrand-real1">
+<h3>double genrand_real1()<a class="headerlink" href="#double-genrand-real1" title="この見出しへのパーマリンク"></a></h3>
+<p>メルセンヌ・ツイスタで、0&lt;= x &lt;= 1の乱数を発生します。</p>
+</section>
+<section id="double-unif-rand-double-a-double-b">
+<h3>double unif_rand(double a, double b)<a class="headerlink" href="#double-unif-rand-double-a-double-b" title="この見出しへのパーマリンク"></a></h3>
+<p>メルセンヌ・ツイスタで、a&lt;=x&lt;=bの範囲の一様乱数を発生します。</p>
+</section>
+<section id="void-make-diff-rands-const-int-n-const-int-max-int-rands">
+<h3>void make_diff_rands(const int n, const int max, int* rands)<a class="headerlink" href="#void-make-diff-rands-const-int-n-const-int-max-int-rands" title="この見出しへのパーマリンク"></a></h3>
+<p>n個の異なる乱数列(0～max未満)を整数で生成します。</p>
+</section>
+<section id="void-make-diff-rands-const-int-n-double-rands">
+<h3>void make_diff_rands(const int n, double* rands)<a class="headerlink" href="#void-make-diff-rands-const-int-n-double-rands" title="この見出しへのパーマリンク"></a></h3>
+<p>n個の異なる乱数列(0～1)を実数で生成します。</p>
+</section>
+<section id="double-normal-rand-double-u-double-sigma-bool-limit-sig-false">
+<h3>double normal_rand(double u, double sigma, bool limit_sig=false)<a class="headerlink" href="#double-normal-rand-double-u-double-sigma-bool-limit-sig-false" title="この見出しへのパーマリンク"></a></h3>
+<p>正規分布に従う乱数を生成します(limit_sig=true: 絶対値４sigmaまでの範囲でしか出力しない)</p>
+</section>
+<section id="double-lognorm-rand-double-u-double-sigma">
+<h3>double lognorm_rand(double u, double sigma)<a class="headerlink" href="#double-lognorm-rand-double-u-double-sigma" title="この見出しへのパーマリンク"></a></h3>
+<p>対数正規分布に従う乱数を生成します。</p>
+</section>
+<section id="double-norm-cdf-double-u-double-sigma-double-x">
+<h3>double norm_CDF(double u, double sigma, double x)<a class="headerlink" href="#double-norm-cdf-double-u-double-sigma-double-x" title="この見出しへのパーマリンク"></a></h3>
+<p>正規分布の累積分布関数を返します。</p>
+</section>
+<section id="double-norm-cdf-double-x">
+<h3>double norm_CDF(double x);<a class="headerlink" href="#double-norm-cdf-double-x" title="この見出しへのパーマリンク"></a></h3>
+<p>標準正規分布の累積分布関数を返します。</p>
+</section>
+<section id="double-exp-rand-double-lam">
+<h3>double exp_rand(double lam)<a class="headerlink" href="#double-exp-rand-double-lam" title="この見出しへのパーマリンク"></a></h3>
+<p>指数分布に従う乱数を生成します。</p>
+</section>
+<section id="double-chai-rand-double-n">
+<h3>double chai_rand(double n)<a class="headerlink" href="#double-chai-rand-double-n" title="この見出しへのパーマリンク"></a></h3>
+<p>カイ2乗分布に従う乱数を生成します（n：自由度）</p>
+</section>
+<section id="double-fisher-rand-double-m-double-n">
+<h3>double fisher_rand(double m, double n)<a class="headerlink" href="#double-fisher-rand-double-m-double-n" title="この見出しへのパーマリンク"></a></h3>
+<p>フィッシャーのF分布（m,n：自由度） に従う乱数を生成します。</p>
+</section>
+<section id="double-student-t-rand-double-n">
+<h3>double student_t_rand(double n)<a class="headerlink" href="#double-student-t-rand-double-n" title="この見出しへのパーマリンク"></a></h3>
+<p>studentのｔ分布生成（n：自由度） に従う乱数を生成します。</p>
+</section>
+<section id="double-poisson-rand-double-u">
+<h3>double poisson_rand(double u)<a class="headerlink" href="#double-poisson-rand-double-u" title="この見出しへのパーマリンク"></a></h3>
+<p>ポアソン分布に従う乱数を生成します。</p>
+</section>
+<section id="double-gamma-rand-double-a-double-b">
+<h3>double gamma_rand(double a, double b)<a class="headerlink" href="#double-gamma-rand-double-a-double-b" title="この見出しへのパーマリンク"></a></h3>
+<p>ガンマ分布に従う乱数を生成します。</p>
+</section>
+<section id="double-weibull-rand-double-a-double-b">
+<h3>double weibull_rand(double a, double b)<a class="headerlink" href="#double-weibull-rand-double-a-double-b" title="この見出しへのパーマリンク"></a></h3>
+<p>ワイブル分布に従う乱数を生成します。</p>
+</section>
+<section id="bool-bernoulli-rand-double-a">
+<h3>bool bernoulli_rand(double a)<a class="headerlink" href="#bool-bernoulli-rand-double-a" title="この見出しへのパーマリンク"></a></h3>
+<p>ベルヌーイ分布(確率aでtrueを生成)に従う乱数を生成します。</p>
+</section>
+<section id="int-binomial-rand-double-a-int-n">
+<h3>int binomial_rand(double a, int n)<a class="headerlink" href="#int-binomial-rand-double-a-int-n" title="この見出しへのパーマリンク"></a></h3>
+<p>二項分布(成功確率a5の事象をn回施行し、成功した回数を返す)に従う乱数を生成します。</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="commonfuncs">
+<h2>CommonFuncsクラス<a class="headerlink" href="#commonfuncs" title="この見出しへのパーマリンク"></a></h2>
+<p>数値解析に使いそうな操作をまとめたライブラリです。ガウス積分点の生成などがあります。「BasicFuncs/CommonFuncs.hpp」をインクルードして使ってください。
+全てStatic関数です。インスタンスを作成せずに呼び出してください。</p>
+<section id="int-round-double-m">
+<h3>int round(double m)<a class="headerlink" href="#int-round-double-m" title="この見出しへのパーマリンク"></a></h3>
+<p>四捨五入メソッドです。いまはstdで普通にありますが、一応。</p>
+</section>
+<section id="double-sigmoid-double-x-double-constk">
+<h3>double sigmoid(double x, double constK)<a class="headerlink" href="#double-sigmoid-double-x-double-constk" title="この見出しへのパーマリンク"></a></h3>
+<p>入力ｘをシグモイド関数に入力した結果を返します。Kは係数です。
+f(x) = 1 / (1+exp(-K*x))</p>
+</section>
+<section id="void-setgauss-double-tg-double-wg-int-nump">
+<h3>void setGauss(double* tg, double* wg, int numP )<a class="headerlink" href="#void-setgauss-double-tg-double-wg-int-nump" title="この見出しへのパーマリンク"></a></h3>
+<p>ガウス積分点を作成します。積分点数はnumPで、積分点をtgに、積分重みをwgに格納します。
+numPは2~12で指定してください。
+ポインタは事前にnumPのサイズで確保しておいてください。</p>
+</section>
+<section id="void-setgausshex-double-tg-x-double-tg-y-double-tg-z-double-wg-int-nump">
+<h3>void setGaussHEX(double* tg_x, double* tg_y, double* tg_z, double* wg, int numP )<a class="headerlink" href="#void-setgausshex-double-tg-x-double-tg-y-double-tg-z-double-wg-int-nump" title="この見出しへのパーマリンク"></a></h3>
+<p>六面体用のガウス積分点を作成します。積分点数はnumPです。
+積分点のx,y,z成分ををtg_x、_y、_zに格納し、その積分重みをwgに格納します。
+ポインタは事前にnumPのサイズで確保しておいてください。</p>
+</section>
+<section id="void-setgausspri-double-tg-x-double-tg-y-double-tg-z-double-wg-xy-double-wg-z-int-nump-xy-int-nump-z">
+<h3>void setGaussPRI(double* tg_x, double* tg_y, double* tg_z, double* wg_xy, double* wg_z, int numP_xy, int numP_z)<a class="headerlink" href="#void-setgausspri-double-tg-x-double-tg-y-double-tg-z-double-wg-xy-double-wg-z-int-nump-xy-int-nump-z" title="この見出しへのパーマリンク"></a></h3>
+<p>プリズム用のガウス積分点を作成します。xy面(三角形面)の積分点はnumP_xy、z方向はnumP_zです。
+積分点のx,y,z成分ををtg_x、_y、_zに格納し、その積分重みをwgに格納します。
+ポインタは事前にnumPのサイズで確保しておいてください。</p>
+</section>
+<section id="void-calcgausspoint-double-gauss-p-double-gauss-w-const-int-num-gauss">
+<h3>void calcGaussPoint(double* gauss_p, double* gauss_w, const int num_gauss)<a class="headerlink" href="#void-calcgausspoint-double-gauss-p-double-gauss-w-const-int-num-gauss" title="この見出しへのパーマリンク"></a></h3>
+<p>ガウス積分点を作成します。積分点数はnumPで、積分点をtgに、積分重みをwgに格納します。
+ガウスの積分点数に制限はありません。
+ポインタは事前にnumPのサイズで確保しておいてください。</p>
+</section>
+<section id="void-make-three-phase-double-three-rad-double-u-phase-rad-bool-minus-true">
+<h3>void make_three_phase(double* three_rad, double u_phase_rad, bool minus=true)<a class="headerlink" href="#void-make-three-phase-double-three-rad-double-u-phase-rad-bool-minus-true" title="この見出しへのパーマリンク"></a></h3>
+<p>三相の位相差を計算して返す（u_radから計算）。デフォルト相順はU=0，V=-120，W=-240。
+つまり、
+three_rad[0]=u_phase_rad
+three_rad[1]=u_phase_rad-120deg<em>PI/180
+three_rad[2]=u_phase_rad-240deg</em>PI/180</p>
+</section>
+<section id="void-dft-int-size-double-wave-data-double-dft-r-double-dft-im">
+<h3>void dft(int size, double *wave_data, double *dft_r, double *dft_im)<a class="headerlink" href="#void-dft-int-size-double-wave-data-double-dft-r-double-dft-im" title="この見出しへのパーマリンク"></a></h3>
+<p>波形wave_dataの離散フーリエ変換を行います。wave_dataのデータ数は「size」です。
+dft_rに変換後の実部、dft_imに虚部を代入します。
+なお、変換結果のsize/2以降はエイリアシングで意味がない結果です。
+各データのポインタは事前に確保しておいてください。</p>
+</section>
+<section id="void-dft-int-size-double-wave-data-double-dft-r-double-dft-im-double-ampl-double-phase">
+<h3>void dft(int size, double *wave_data, double *dft_r, double *dft_im, double *ampl, double *phase)<a class="headerlink" href="#void-dft-int-size-double-wave-data-double-dft-r-double-dft-im-double-ampl-double-phase" title="この見出しへのパーマリンク"></a></h3>
+<p>波形wave_dataの離散フーリエ変換を行います。wave_dataのデータ数は「size」です。
+dft_rに変換後の実部、dft_imに虚部を代入します。
+また、各次数の大きさと位相[rad]を、amplとphaseに代入します。
+各データのポインタは事前に確保しておいてください。</p>
+</section>
+<section id="void-idft-int-size-double-dft-r-double-dft-im-double-wave-data">
+<h3>void idft(int size, double *dft_r, double *dft_im, double *wave_data)<a class="headerlink" href="#void-idft-int-size-double-dft-r-double-dft-im-double-wave-data" title="この見出しへのパーマリンク"></a></h3>
+<p>離散フーリエ後の結果dft_rとdft_imから、逆変換を行った波形を作成します。
+サイズはsizeで、結果波形はwave_dataに格納されます。
+各データのポインタは事前に確保しておいてください。</p>
+</section>
+<section id="void-dft-filtering-int-size-int-target-double-dft-r-double-dft-im">
+<h3>void dft_filtering(int size, int target, double *dft_r, double *dft_im)<a class="headerlink" href="#void-dft-filtering-int-size-int-target-double-dft-r-double-dft-im" title="この見出しへのパーマリンク"></a></h3>
+<p>離散フーリエ後の結果dft_rとdft_imの、target次数以外をゼロにします。</p>
+</section>
+<section id="double-calc-phase-deg-int-size-double-wave1-double-wave2">
+<h3>double calc_phase_deg(int size, double* wave1, double* wave2)<a class="headerlink" href="#double-calc-phase-deg-int-size-double-wave1-double-wave2" title="この見出しへのパーマリンク"></a></h3>
+<p>２つの波形の基本波の位相差をdeg単位で返します。
+両波形のサイズは共にsizeです。</p>
+</section>
+<section id="void-threefullwavemaker-int-sub-wave-count-int-wave-points-int-full-points-double-sub-waves-double-full-wave">
+<h3>void ThreeFullWaveMaker(int sub_wave_count, int wave_points, int&amp; full_points, double** sub_waves, double*** full_wave)<a class="headerlink" href="#void-threefullwavemaker-int-sub-wave-count-int-wave-points-int-full-points-double-sub-waves-double-full-wave" title="この見出しへのパーマリンク"></a></h3>
+<p>3相対称の部分波形からフル波形を作ります。
+sub_wave_countは部分波形の電気角の角度で、60，120，180のいずれかが入ります。
+wave_pointsは部分波形の点数で、値はsub_wavesで渡します。(waveはU[0deg]V[-120deg],W[-240deg]の順)
+部分波形をフル波形にした結果は、full_waveに格納されます。ポインタは事前に確保せずにOKです。
+（sub_wave_countが60でwave_pointsが50なら、フルの波形サイズは6*50＝300になり、full_fave[3][300]なるサイズの波形が出来ます）</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Basic.html" class="btn btn-neutral float-left" title="基本ヘッダ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SparseMat.html" class="btn btn-neutral float-right" title="SparseMat" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, JP-MARs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

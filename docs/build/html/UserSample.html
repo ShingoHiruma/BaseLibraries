@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>利用例 &mdash; BaseLibrariesPages  ドキュメント</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="開発者向け" href="ForDev.html" />
+    <link rel="prev" title="SparseMat" href="SparseMat.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BaseLibrariesPages
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Basic.html">基本ヘッダ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BaseLibraries.html">BasicFuncs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SparseMat.html">SparseMat</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">利用例</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basicfuncs">BasicFuncsの利用例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mt">Mt乱数の利用例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">基本関数の利用例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sparsemat">SparseMatの利用例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">疎行列の作成</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">疎行列の四則演算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">疎行列ソルバ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ForDev.html">開発者向け</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BaseLibrariesPages</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">利用例</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/UserSample.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>利用例<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h1>
+<p>本ライブラリの利用方法の例を示します。
+githubのexampleにも利用例があるので参照ください。</p>
+<section id="basicfuncs">
+<h2>BasicFuncsの利用例<a class="headerlink" href="#basicfuncs" title="この見出しへのパーマリンク"></a></h2>
+<section id="mt">
+<h3>Mt乱数の利用例<a class="headerlink" href="#mt" title="この見出しへのパーマリンク"></a></h3>
+<p>Mt.hppで定義されているメルセンヌ乱数の利用例です。
+まずはシードを初期化します。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+#include &lt;BasicFuncs/Mt.hpp&gt;
+
+int main(int argc, char *argv[]){
+    //10のシードを作成
+    int seed = 10;
+    //初期化する（一応C++のデフォルト乱数も初期化）
+    srand(seed);
+    SRLfem::Mt::init_rand(seed);
+}
+
+</pre></div>
+</div>
+<p>あとはMt.hpp内に定義している乱数メソッドを自由に呼び出して利用してください。
+例えば正規乱数なら以下のようになります。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+/* 平均u、分散sig*sigの正規乱数の生成 */
+double u = 5.0;
+double sig = 100;
+double rand　= SRLfem::Mt::normal_rand(u, sig);
+cout &lt;&lt; rand &lt;&lt; endl;
+
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h3>基本関数の利用例<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<p>CommonFuncs.hppで定義されている基本関数の利用例です。
+基本的には、やりたい処理をhppの定義から探して呼び出すだけです。
+例えば、ガウス積分点[-1,+1]を生成したいなら以下のようになります。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+int num_g = 6;
+double* tg = new double[num_g];
+double* wg = new double[num_g];
+
+//ガウス積分点[-1, 1]の生成
+SRLfem::CommonFuncs::setGauss(tg, wg, num_g);
+for(int i = 0 ; i &lt; num_g ; i++){
+    cout &lt;&lt; i &lt;&lt; &quot;th point = &quot; &lt;&lt; tg[i] &lt;&lt; &quot; and it&#39;s w = &quot; &lt;&lt; wg[i] &lt;&lt; endl;
+}
+
+delete[] tg;
+delete[] wg;
+
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="sparsemat">
+<h2>SparseMatの利用例<a class="headerlink" href="#sparsemat" title="この見出しへのパーマリンク"></a></h2>
+<section id="id3">
+<h3>疎行列の作成<a class="headerlink" href="#id3" title="この見出しへのパーマリンク"></a></h3>
+<p>SparseMat.hppもしくはSparseMatC.hppで定義している疎行列の利用例です。
+基本的には、行数を決めてインスタンスを作成し、addで要素を付け足していくだけです。
+行列が完成したらfixで固定します。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+#include &lt;SparseMat/SparseMat.hpp&gt;
+#include &lt;SparseMat/SparseMatC.hpp&gt;
+
+int main(int argc, char *argv[]){
+    int size = 5;
+    /* 行数5の疎行列を作成して初期化 */
+    SRLfem::SparseMat matA1(size);
+
+    //適当に要素を付け足していく
+    matA1.add(0, 0, 5.0);
+    matA1.add(1, 2, -1.0);
+    matA1.add(4, 5, 1.0);
+    //matA1.add(5, 1, 1.0); //サイズが5をオーバーしたのでエラーで落ちます
+
+    //同じ位置にaddしてもOKです
+    matA1.add(0, 0, 1.0);
+
+    //終わったら確定します
+    matA1.fix();
+
+    matA1.print();
+    //(0, 0)=6
+    //(1, 2)=-1
+    //(4, 5)=1
+    //と、addしたところだけ値を持った疎行列が表示されます
+
+}
+
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h3>疎行列の四則演算<a class="headerlink" href="#id4" title="この見出しへのパーマリンク"></a></h3>
+<p>fix済みの疎行列は四則演算が可能です</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+#include &lt;SparseMat/SparseMat.hpp&gt;
+#include &lt;SparseMat/SparseMatC.hpp&gt;
+#include &lt;SparseMat/SparseMatOperators.hpp&gt;
+
+int main(int argc, char *argv[]){
+    //
+    //～適当に行列を作成してfixさせます
+    //  matA, matBを作っているとしましょう
+    //
+
+    /* 適当なベクトル */
+    double vecB[] = {1, 2, 3, 4, 5};
+    /* 行列・ベクトル積 */
+    double* vec01 =matA * vecB;
+    for(int i = 0 ; i &lt; total_size ; i++){
+        cout &lt;&lt; vec01[i] &lt;&lt;endl;
+    }
+    cout &lt;&lt; endl;
+    delete[] vec01;//ベクトル積で作った結果は動的ポインタで保持しているので、使い終わったらdeleteして下さい
+
+    /* 行列の和や積も自由にできます */
+    SRLfem::SparseMat matX = matA * 10.0;
+    SRLfem::SparseMat matCX = matA * matB;
+    //複数の操作をまとめて書いても動きます
+    SRLfem::SparseMat matCX2 = matA + matB * matCX;
+
+    //SparseMatOperatorsで定義されている少し複雑な処理は、個別にstaticメソッドを読んで実行します
+    SRLfem::SparseMat matZ = SRLfem::SparseMatOperators::plusShift(matAs1, matBs1, 2.0, 0.5, 1, 2);
+    matZ.print();
+
+}
+
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h3>疎行列ソルバ<a class="headerlink" href="#id5" title="この見出しへのパーマリンク"></a></h3>
+<p>fix済みの疎行列に対して、疎行列用ソルバを利用できます。</p>
+<div class="highlight-cpp: notranslate"><div class="highlight"><pre><span></span>
+#include &lt;SparseMat/SparseMat.hpp&gt;
+#include &lt;SparseMat/SparseMatC.hpp&gt;
+#include &lt;SparseMat/MatSolvers.hpp&gt;
+
+int main(int argc, char *argv[]){
+    int total_siz = 5:
+
+    //
+    //～適当に行列を作成してfixさせます
+    //  matAを作っているとしましょう
+    //
+
+
+	/* 解を初期化 */
+    double* results00 = new double[total_size];
+    for(int i = 0 ; i &lt; total_size ; i++){
+        results00[i] = 0;
+    }    
+    //右辺b
+    double vecB[] = {1, 2, 3, 4, 5};
+    /* ICCGでAx=bを解きます（収束判定10^-8、加速係数1.05） */
+    bool bl1 = SRLfem::MatSolvers::solveICCG(total_size, 1.0e-8, 10000, 1.05, matAs1, vecB, results00);;
+
+
+}
+
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="SparseMat.html" class="btn btn-neutral float-left" title="SparseMat" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ForDev.html" class="btn btn-neutral float-right" title="開発者向け" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, JP-MARs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

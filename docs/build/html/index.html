@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BaseLibraries解説用ページ &mdash; BaseLibrariesPages  ドキュメント</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="基本ヘッダ" href="Basic.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            BaseLibrariesPages
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Basic.html">基本ヘッダ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="BaseLibraries.html">BasicFuncs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SparseMat.html">SparseMat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="UserSample.html">利用例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ForDev.html">開発者向け</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">BaseLibrariesPages</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BaseLibraries解説用ページ</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="baselibraries">
+<h1>BaseLibraries解説用ページ<a class="headerlink" href="#baselibraries" title="この見出しへのパーマリンク"></a></h1>
+<div class="line-block">
+<div class="line">このページは、電磁界有限要素法関連で使うC++用基本ライブラリの解説ページです。</div>
+<div class="line">ソースコードは下記にアップされています。</div>
+</div>
+<p><a class="reference external" href="https://github.com/JP-MARs/BaseLibraries">https://github.com/JP-MARs/BaseLibraries</a></p>
+<hr class="docutils" />
+<section id="id1">
+<h2>ライブラリ内容<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<p>本ライブラリは複数のライブラリ群をまとめたもので、現在、以下のライブラリから成ります。</p>
+<ul class="simple">
+<li><p><strong>基本乱数・基本処理ライブラリ：BasicFuncs</strong>　～メルセンヌ乱数やガウス積分用積分点の生成など、数値解析/最適化などで使いそうな基本処理をまとめたライブラリ</p></li>
+<li><p><strong>疎行列ライブラリ：SparseMat</strong>　～有限要素法で用いる疎行列とソルバのライブラリ。基本的にはEigenライブラリ のラッパーとして機能します。実数と複素数の両方に対応します。</p></li>
+</ul>
+<p>注釈</p>
+<ul class="simple">
+<li><p>本ライブラリは全て名前空間 <strong>「SRLfem」</strong> 内に定義しています。呼び出す際は名前空間を付けるか、using namespaceを使ってください。</p></li>
+<li><p>複素数の専用名として、SRLfem::dcomplexを定義しています。std::complex&lt;double&gt;として定義しているだけです。</p></li>
+<li><p>行列のintはslv_intとして定義しています。intの別名として定義しているだけです。もしlong intなどに変えたければusingの項を変更してください。（詳細はSparseMatの説明のページで）</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Basic.html">基本ヘッダ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Basic.html#basicdefines-hpp">BasicDefines.hpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Basic.html#basicdefinesc-hpp">BasicDefinesC.hpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Basic.html#basicdefinesjson-hpp">BasicDefinesJSON.hpp</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="BaseLibraries.html">BasicFuncs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="BaseLibraries.html#mt">Mtクラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BaseLibraries.html#commonfuncs">CommonFuncsクラス</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SparseMat.html">SparseMat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SparseMat.html#id1">SparseMatクラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SparseMat.html#sparsematc">SparseMatCクラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SparseMat.html#sparsematoperators">SparseMatOperatorsクラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SparseMat.html#matsolvers">MatSolversクラス</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="UserSample.html">利用例</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="UserSample.html#basicfuncs">BasicFuncsの利用例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="UserSample.html#sparsemat">SparseMatの利用例</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ForDev.html">開発者向け</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ForDev.html#sparsemat">SparseMatについて</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Basic.html" class="btn btn-neutral float-right" title="基本ヘッダ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, JP-MARs.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
