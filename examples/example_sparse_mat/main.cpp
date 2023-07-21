@@ -7,9 +7,16 @@ using namespace std;
 
 #include <SparseMat/SparseMat.hpp>
 #include <SparseMat/SparseMatC.hpp>
+#include <SparseMat/SparseMatOperators.hpp>
 #include <SparseMat/MatSolvers.hpp>
 
-
+#ifdef IS_WINDOWS_SISTEM
+#ifdef _DEBUG
+#pragma comment(lib, "libSparseMat_Deb.lib")
+#else
+#pragma comment(lib, "libSparseMat.lib")
+#endif
+#endif
 
 
 /*//=======================================================
@@ -62,9 +69,9 @@ int main(int argc, char *argv[]){
 		}
 	}
 	/* 疎行列位置を確定させる */
-	matAs1.refresh();
-	matBs1.refresh();
-	matCs1.refresh();
+	matAs1.fix();
+	matBs1.fix();
+	matCs1.fix();
 
 	/**/
 	/**/
@@ -91,6 +98,10 @@ int main(int argc, char *argv[]){
 	SRLfem::SparseMat matX = matAs1 * 10.0;
 	SRLfem::SparseMatC matCX = matAs1 * matCs1;
 	SRLfem::SparseMatC matCX2 = matAs1 + matBs1 * matCs1;
+
+	SRLfem::SparseMat matZ = SRLfem::SparseMatOperators::plusShift(matAs1, matBs1, 2.0, 0.5, 1, 2);
+	matZ.print();
+
 
 
 	/**/
