@@ -8,8 +8,8 @@
 #include <fstream>
 
 
-#include <BaseDefines.hpp>
-#include <BaseDefinesC.hpp>
+#include <BasicDefines.hpp>
+#include <BasicDefinesC.hpp>
 #include <vector>
 #include <map>
 #include <string>
@@ -42,13 +42,13 @@ private:
 	slv_int size;																/* 行列の行数 */
 	bool is_fix;																/* スパース位置が確定しているか */
 	std::map<slv_int, DType>* tempMat;											/* 一時保存行列（キーが列位置） */
-	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;											/* Eigenスパース行列 */
+	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;							/* Eigenスパース行列 */
 	/*-------------------------------------------------------*/
-	void add_typeN(slv_int gyo, slv_int retu, DType val);							/* 確定済み行列にpush */
+	void add_typeN(slv_int gyo, slv_int retu, DType val);						/* 確定済み行列にpush */
 	/*  */
 public:
 	SparseMatTMPL();
-	SparseMatTMPL(slv_int size0);																	/* コンストラクタ */
+	SparseMatTMPL(slv_int size0);																/* コンストラクタ */
 	SparseMatTMPL(const Eigen::SparseMatrix<DType, Eigen::RowMajor>& Mat0);
 	SparseMatTMPL(Eigen::SparseMatrix<DType, Eigen::RowMajor>&& Mat0);
 	~SparseMatTMPL();
@@ -66,7 +66,7 @@ public:
 	void refresh(){fix();};
 	void resetMat();																			/* 確定済み行列の値を０に再セット */
 	void getCols(slv_int* cols_data1, slv_int* cols_data2) const;								/* 各行の列のスタート・終了位置を返す */
-	auto getColPtr()const{ return matrix.innerIndexPtr(); };								/* 列のポインタを返す */
+	auto getColPtr()const{ return matrix.innerIndexPtr(); };									/* 列のポインタを返す */
 	auto getValuePtr()const{ return matrix.valuePtr(); };										/* 値のポインタを返す */
 	slv_int isInclude(slv_int gyo, slv_int target_r) const;										/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
 	void add(slv_int gyo, slv_int retu, DType val);												/* 一時配列にpush */

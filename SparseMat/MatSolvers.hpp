@@ -41,12 +41,6 @@ private:
 						  const dcomplex* diagD, const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results, bool init=false);
 	static void preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const dcomplex *vecR, dcomplex *vec);	
 	static void preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec);	
-	/**/
-	/* MKLソルバのラッパー */
-	/**/
-	template<typename MType, typename VType>
-	static bool solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para=1);
-	/**/
 	/*---------------*/
 public:
 	/*---------------*/
@@ -73,8 +67,6 @@ public:
 	//
 	/* MKLソルバのラッパー */
 	//
-	static bool solveMLKpardisoSym(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1);
-	static bool solveMLKpardisoSym(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1);
 	static bool solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1);
 	static bool solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1);
 };

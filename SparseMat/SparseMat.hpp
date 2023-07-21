@@ -32,13 +32,13 @@ public:
 	SparseMat& operator=(SparseMat&& mat) noexcept;
 	/**/
 	bool isFixed() const{return matrix->is_fix;};												/* 確定済みかどうか */
-	bool isEmpty() const {matrix->isEmpty();};													/* 行列の中身が空かどうか */
+	bool isEmpty() const {return matrix->isEmpty();};											/* 行列の中身が空かどうか */
 	void tempInitialize() {matrix->tempInitialize();};											/* 一時vector行列を作成 */
 	void fix() { matrix->fix(); };																/* 一時vector配列を確定させる */
 	void refresh(){matrix->refresh();};
-	void resetMat() {matrix->resetMat();};														/* 確定済み行列の値を０に再セット */
-	slv_int isInclude(slv_int gyo, slv_int target_r)const{matrix->isInclude(gyo, target_r);};			/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
-	void add(slv_int gyo, slv_int retu, double val){matrix->add(gyo, retu, val);};					/* 一時配列にpush */
+	void resetMat() {matrix->resetMat();};																/* 確定済み行列の値を０に再セット */
+	slv_int isInclude(slv_int gyo, slv_int target_r)const{return matrix->isInclude(gyo, target_r);};	/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
+	void add(slv_int gyo, slv_int retu, double val){matrix->add(gyo, retu, val);};						/* 一時配列にpush */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<double>& row_val)const{matrix->getTargetRowVal(target, row_pos, row_val);};			/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
 	void getTargetColVal(slv_int target, std::vector<slv_int>& col_pos, std::vector<double>& col_val)const{matrix->getTargetColVal(target, col_pos, col_val);};			/* 指定した行の非ゼロの列位置と値をvectorに書き出す */
 	void printMat(const std::string& str="Mat.csv") {matrix->printMat(str);};;
