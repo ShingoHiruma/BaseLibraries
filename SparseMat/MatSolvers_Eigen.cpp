@@ -3,6 +3,7 @@
 #include "SparseMatOperators.hpp"
 #include <000_thirdparty/Eigen/IterativeLinearSolvers>
 //#include <000_thirdparty/UnsupportedEigen/Eigen/IterativeSolvers>
+#include <000_thirdparty/Eigen//SparseCholesky>	
 
 
 /* 専用名前空間 */
@@ -152,7 +153,36 @@ bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, 
 }
 
 
+/*//=======================================================
+// ● SimplicialLDLT(Eigenソルバ)
+//=======================================================*/
+bool MatSolvers::solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results){	
+	Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > solver;
+	solver.compute(matA.matrix->matrix);
+	if(solver.info() != Eigen::Success) {
+		return false;
+	}
+	results = solver.solve(vecB);
+	if(solver.info() != Eigen::Success) {
+		return false;;
+	}
+	return true;
+}
+bool MatSolvers::solveEigenSimplicialLDLT(const slv_int size0, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results){	
+	Eigen::SimplicialLDLT< Eigen::SparseMatrix<dcomplex> > solver;
+	solver.compute(matA.matrix->matrix);
+	if(solver.info() != Eigen::Success) {
+		return false;
+	}
+	results = solver.solve(vecB);
+	if(solver.info() != Eigen::Success) {
+		return false;;
+	}
+	return true;
+}
+
 /* end of namespace */
 };
+
 
 

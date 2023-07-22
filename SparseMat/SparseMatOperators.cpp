@@ -18,8 +18,8 @@ void SparseMatOperators::copyDtoC(SparseMatBaseC& mat_ans, const SparseMatBaseD&
 	slv_int* start_pos = new slv_int[the_size];
 	slv_int* end_pos = new slv_int[the_size];
 	mat.getCols(start_pos, end_pos);		
-	auto col_ptr = mat.matrix.outerIndexPtr();
-	auto val_ptr = mat.matrix.valuePtr();
+	auto col_ptr = mat.getColPtr();//matrix.innerIndexPtr();.matrix.innerIndexPtr();
+	auto val_ptr = mat.getValuePtr();//.matrix.valuePtr();
 	for(slv_int i = 0 ; i < the_size ; i++){
 		const slv_int col_size = end_pos[i];
 		for(slv_int j = start_pos[i] ; j < col_size ; j++){

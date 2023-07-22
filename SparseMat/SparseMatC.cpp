@@ -225,6 +225,16 @@ SparseMatC SparseMatC::inv() const{
 }
 
 /*//=======================================================
+// ● 疑似逆行列用の行列（A^T*A+epsI）を作成
+//=======================================================*/
+SparseMatC SparseMatC::makePrsdInv(double eps) const{
+	SparseMatBaseC mat_ori;
+	SparseMatOperators::AtA_eps<SparseMatBaseC, dcomplex>(mat_ori, *(this->matrix), eps);
+	SparseMatC mat_ans(std::move(mat_ori));
+	return mat_ans;
+}
+
+/*//=======================================================
 // ● 不完全コレスキー分解
 //=======================================================*/
 SparseMatC SparseMatC::IC_decomp(dcomplex* diagD, const double accela) const{

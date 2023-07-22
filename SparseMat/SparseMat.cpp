@@ -243,6 +243,17 @@ void SparseMat::round(){
 }
 
 /*//=======================================================
+// ● 疑似逆行列用の行列（A^T*A+epsI）を作成
+//=======================================================*/
+SparseMat SparseMat::makePrsdInv(double eps) const{
+	SparseMatBaseD mat_ori;
+	SparseMatOperators::AtA_eps<SparseMatBaseD, double>(mat_ori, *(this->matrix), eps);
+	SparseMat mat_ans(std::move(mat_ori));
+	return mat_ans;
+}
+
+
+/*//=======================================================
 // ● 不完全コレスキー分解
 //=======================================================*/
 SparseMat SparseMat::IC_decomp(double* diagD, const double accela) const{

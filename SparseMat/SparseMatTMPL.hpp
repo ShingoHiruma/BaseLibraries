@@ -42,15 +42,16 @@ private:
 	slv_int size;																/* 行列の行数 */
 	bool is_fix;																/* スパース位置が確定しているか */
 	std::map<slv_int, DType>* tempMat;											/* 一時保存行列（キーが列位置） */
-	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;							/* Eigenスパース行列 */
+	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;											/* Eigenスパース行列 */
 	/*-------------------------------------------------------*/
-	void add_typeN(slv_int gyo, slv_int retu, DType val);						/* 確定済み行列にpush */
+	void add_typeN(slv_int gyo, slv_int retu, DType val);							/* 確定済み行列にpush */
 	/*  */
 public:
 	SparseMatTMPL();
-	SparseMatTMPL(slv_int size0);																/* コンストラクタ */
+	SparseMatTMPL(slv_int size0);																	/* コンストラクタ */
 	SparseMatTMPL(const Eigen::SparseMatrix<DType, Eigen::RowMajor>& Mat0);
 	SparseMatTMPL(Eigen::SparseMatrix<DType, Eigen::RowMajor>&& Mat0);
+	SparseMatTMPL(const std::vector<Eigen::Triplet<DType>>& sparse_data);						/* Eigenタプルから初期化 */
 	~SparseMatTMPL();
 	slv_int getSize() const{return size;};
 	SparseMatTMPL(const SparseMatTMPL<DType>& Mat);												/* コピーコンストラクタ */
@@ -69,6 +70,7 @@ public:
 	auto getColPtr()const{ return matrix.innerIndexPtr(); };									/* 列のポインタを返す */
 	auto getValuePtr()const{ return matrix.valuePtr(); };										/* 値のポインタを返す */
 	slv_int isInclude(slv_int gyo, slv_int target_r) const;										/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
+	slv_int getMaxCol()const;																	/* スパース内の最大の列位置を返す */
 	void add(slv_int gyo, slv_int retu, DType val);												/* 一時配列にpush */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<DType>& row_val)const;	/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
 	void getTargetColVal(slv_int target, std::vector<slv_int>& col_pos, std::vector<DType>& col_val)const;	/* 指定した行の非ゼロの列位置と値をvectorに書き出す */
@@ -301,6 +303,33 @@ void SparseMatTMPL<DType>::fix(){
 }
 
 /*//=======================================================
+// ●  Eigenタプルから初期化
+//=======================================================*/
+template<typename DType>
+SparseMatTMPL<DType>::SparseMatTMPL(const std::vector<Eigen::Triplet<DType>>& sparse_data){
+	const int data_size = sparse_data.size();
+	
+	/* 最大列をサーチ */
+	slv_int max1 = 0;
+	slv_int max2 = 0;
+	for(int i = 0 ; i < data_size ; i++){
+		slv_int gyo = sparse_data[i].row();
+		slv_int retu = sparse_data[i].col();
+		if(max1 < gyo) max1 = gyo;
+		if(max2 < retu) max2 = retu;
+	}
+	max1++;
+	max2++;
+	/* 確定させる */
+	this->size = max1;
+	matrix = Eigen::SparseMatrix<DType, Eigen::RowMajor>(max1, max2);
+	matrix.setFromTriplets(sparse_data.begin(), sparse_data.end());
+	tempMat = nullptr;
+	is_fix = true;
+}
+
+
+/*//=======================================================
 // ● 確定済み行列の値を０に再セット
 //=======================================================*/
 template<typename DType>
@@ -450,6 +479,48 @@ void SparseMatTMPL<DType>::getTargetColVal(slv_int target, std::vector<slv_int>&
 	}
 }
 
+ 
+/*//=======================================================
+// ● スパース内の最大の列位置を返す
+//=======================================================*/
+template<typename DType>
+slv_int SparseMatTMPL<DType>::getMaxCol()const{
+	/* 確定前のとき */
+	if( !is_fix ){
+		slv_int max = 0;
+		for(slv_int i = 0; i < size; i++) {
+			auto itr = tempMat[i].begin();
+			const slv_int the_size = tempMat[i].size();
+			for(slv_int j = 0 ; j < the_size ; j++){
+				const slv_int tmp = itr->first;
+				if(max < tmp){
+					max = tmp;
+				}
+				itr++;
+			}
+		}
+		return max;
+	}
+	/* 確定済みのとき */
+	/* ポインタをたどって探す */
+	slv_int count=0;
+	auto row_ptr = matrix.innerIndexPtr();
+	auto col_ptr = matrix.outerIndexPtr();
+	auto val_ptr = matrix.valuePtr();
+	const slv_int total_size = matrix.nonZeros();
+	slv_int max = 0;
+	for(slv_int i = 0; i < size; i++) {
+		const slv_int num = (i==size-1 ? total_size : col_ptr[i+1]);
+		for(int j = col_ptr[i]; j < num; j++) {
+			if(max < row_ptr[count]) {
+				max = row_ptr[count];
+			}
+			count++;
+		}
+	}
+	return max;
+}
+
 /*//=======================================================
 // ● 自身にスカラ積
 //=======================================================*/
@@ -464,10 +535,19 @@ void SparseMatTMPL<DType>::operator*=(const DType xval){
 //=======================================================*/
 template<typename DType>
 void SparseMatTMPL<DType>::printMat(const std::string& str){
+	/*std::cout << "????????????????"<<std::endl;
+	auto row_ptr = matrix.innerIndexPtr();
+	auto col_ptr = matrix.outerIndexPtr();
+	auto val_ptr = matrix.valuePtr();
+	const slv_int total_size = matrix.nonZeros();
+	for(slv_int i = 0 ; i <total_size; i++){
+		std::cout << row_ptr[i] << ", " << col_ptr[i] << ", "<< val_ptr[i] << std::endl;
+	}*/
+
 	slv_int* start_pos1 = new slv_int[size];
 	slv_int* end_pos1 = new slv_int[size];
 	this->getCols(start_pos1, end_pos1);
-	auto col_ptr1 = matrix.outerIndexPtr();
+	auto col_ptr1 = matrix.innerIndexPtr();;//matrix.outerIndexPtr();
 	auto val_ptr1 = matrix.valuePtr();
 
 	std::fstream fp(str, std::ios::out);

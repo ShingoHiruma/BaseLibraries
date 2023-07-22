@@ -51,7 +51,9 @@ private:
 	/* 不完全コレスキー分解 */
 	template<typename Mat1, typename DType1, typename DTypeD>
 	static void IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diagD, const double accela);
-
+	/* A^T*A + epsIを作る（疑似逆行列用） */
+	template<typename Mat1, typename DType1>
+	static void AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps);
 	/**/
 	/*===========================================*/
 	/* Staticで使う専用の内部処理 */
@@ -98,6 +100,7 @@ public:
 	static SparseMatC dotMats(const SparseMat& matA, const SparseMat& matB, const SparseMatC& matC);
 	static SparseMatC dotMats(const SparseMat& matA, const SparseMatC& matB, const SparseMatC& matC);
 	static SparseMatC dotMats(const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC);
+	/**/
 	/* (配列位置確定時)自身に、行列A±Bを加える(a1*A+a2*B)。Bの開始位置はposだけずらす */
 	static void plusFix(SparseMat& matAB, const SparseMat& matA, const SparseMat& matB, double a1=1.0, double a2=1.0, slv_int pos1=0, slv_int pos2=0);
 	static void plusFix(SparseMatC& matAB, const SparseMat& matA, const SparseMatC& matB, double a1=1.0, double a2=1.0, slv_int pos1=0, slv_int pos2=0);
@@ -684,6 +687,49 @@ void SparseMatOperators::IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diag
 	//delete tempMat;
 }
 
+/*//=======================================================
+// ● A^T*A + epsIを作る（疑似逆行列用）
+//=======================================================*/
+template<typename Mat1, typename DType1>
+void SparseMatOperators::AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps){
+	const slv_int size1 = mat1.getSize();
+	slv_int* start_pos1 = new slv_int[size1];
+	slv_int* end_pos1 = new slv_int[size1];
+	mat1.getCols(start_pos1, end_pos1);
+	auto col_ptr1 = mat1.getColPtr();//.matrix.innerIndexPtr();
+	auto val_ptr1 = mat1.getValuePtr();//matrix.valuePtr();
+
+	const slv_int new_size = 1 + mat1.getMaxCol();
+	/* まずA^TとAをかける */
+	Mat1* mat_AtA = new Mat1(new_size);	
+
+	for(slv_int i = 0 ; i < size1 ; i++){
+		const slv_int the_size = end_pos1[i];
+		/* i行目のAが持つ列を探索 */
+		for(slv_int aj = start_pos1[i] ; aj < the_size ; aj++){
+			slv_int row = col_ptr1[aj];
+			DType1 avalue = val_ptr1[aj];
+			/* Aが列をもつ場所rowのに対応したCの行を探索 */
+			const slv_int the_sizeb = end_pos1[i];
+			for(slv_int bj = start_pos1[i] ; bj < the_sizeb ; bj++){
+				slv_int rowB = col_ptr1[bj];
+				DType1 bvalue = val_ptr1[bj];
+				mat_AtA->add(row, rowB, avalue*bvalue);
+			}
+		}
+	}
+	delete[] start_pos1;
+	delete[] end_pos1;
+
+	/* 最後に対角項を足す */
+	for(slv_int i = 0 ; i <new_size ; i++){
+		mat_AtA->add(i, i, eps);
+	}
+	mat_AtA->fix();
+	mat_ans = std::move(*mat_AtA);
+	delete mat_AtA;
+}
+
 
 /*============================================*/
 /*============================================*/
@@ -772,8 +818,8 @@ void SparseMatOperators::PlusMinusShiftFix(Mat0& matABC, const Mat1& matA, const
 	slv_int* start_pos1 = new slv_int[size1];
 	slv_int* end_pos1 = new slv_int[size1];
 	matA.getCols(start_pos1, end_pos1);
-	auto col_ptr1 = matA.matrix.outerIndexPtr();
-	auto val_ptr1 = matA.matrix.valuePtr();
+	auto col_ptr1 = matA.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr1 = matA.getValuePtr();//matrix.valuePtr();
 #ifdef OMP_USING_MAT_SOL
 #pragma omp parallel for
 #endif
@@ -793,7 +839,7 @@ void SparseMatOperators::PlusMinusShiftFix(Mat0& matABC, const Mat1& matA, const
 	slv_int* start_pos2 = new slv_int[size2];
 	slv_int* end_pos2 = new slv_int[size2];
 	matB.getCols(start_pos2, end_pos2);
-	auto col_ptr2 = matB.matrix.outerIndexPtr();
+	auto col_ptr2 = matB.matrix.innerIndexPtr();
 	auto val_ptr2 = matB.matrix.valuePtr();
 #ifdef OMP_USING_MAT_SOL
 #pragma omp parallel for
@@ -814,7 +860,7 @@ void SparseMatOperators::PlusMinusShiftFix(Mat0& matABC, const Mat1& matA, const
 	slv_int* start_pos3 = new slv_int[size3];
 	slv_int* end_pos3 = new slv_int[size3];
 	matC.getCols(start_pos3, end_pos3);
-	auto col_ptr3 = matC.matrix.outerIndexPtr();
+	auto col_ptr3 = matC.matrix.innerIndexPtr();
 	auto val_ptr3 = matC.matrix.valuePtr();
 #ifdef OMP_USING_MAT_SOL
 #pragma omp parallel for
@@ -849,15 +895,15 @@ void SparseMatOperators::MatProductFix(Mat0& matAB, const Mat1& matA, const Mat2
 	slv_int* start_pos1 = new slv_int[size1];
 	slv_int* end_pos1 = new slv_int[size1];
 	matA.getCols(start_pos1, end_pos1);
-	auto col_ptr1 = matA.matrix.outerIndexPtr();
-	auto val_ptr1 = matA.matrix.valuePtr();
+	auto col_ptr1 = matA.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr1 = matA.getValuePtr();//matrix.valuePtr();
 
 	const slv_int size2 = matB.getSize();
 	slv_int* start_pos2 = new slv_int[size2];
 	slv_int* end_pos2 = new slv_int[size2];
 	matB.getCols(start_pos2, end_pos2);
-	auto col_ptr2 = matB.matrix.outerIndexPtr();
-	auto val_ptr2 = matB.matrix.valuePtr();
+	auto col_ptr2 = matB.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr2 = matB.getValuePtr();//matrix.valuePtr();
 
 #ifdef OMP_USING_MAT_SOL
 #pragma omp parallel for
@@ -898,22 +944,22 @@ void SparseMatOperators::MatProductFix(Mat0& matABC, const Mat1& matA, const Mat
 	slv_int* start_pos1 = new slv_int[size1];
 	slv_int* end_pos1 = new slv_int[size1];
 	matA.getCols(start_pos1, end_pos1);
-	auto col_ptr1 = matA.matrix.outerIndexPtr();
-	auto val_ptr1 = matA.matrix.valuePtr();
+	auto col_ptr1 = matA.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr1 = matA.getValuePtr();//matrix.valuePtr();
 
 	const slv_int size2 = matB.getSize();
 	slv_int* start_pos2 = new slv_int[size2];
 	slv_int* end_pos2 = new slv_int[size2];
 	matB.getCols(start_pos2, end_pos2);
-	auto col_ptr2 = matB.matrix.outerIndexPtr();
-	auto val_ptr2 = matB.matrix.valuePtr();
+	auto col_ptr2 = matB.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr2 = matB.getValuePtr();//matrix.valuePtr();
 
 	const slv_int size3 = matC.getSize();
 	slv_int* start_pos3 = new slv_int[size3];
 	slv_int* end_pos3 = new slv_int[size3];
 	matC.getCols(start_pos3, end_pos3);
-	auto col_ptr3 = matC.matrix.outerIndexPtr();
-	auto val_ptr3 = matC.matrix.valuePtr();
+	auto col_ptr3 = matC.getColPtr();//matrix.innerIndexPtr();
+	auto val_ptr3 = matC.getValuePtr();//matrix.valuePtr();
 
 	/* まずBとCをかける */
 	Mat0 matBC(size2);
