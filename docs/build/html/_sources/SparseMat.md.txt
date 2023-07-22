@@ -1,5 +1,7 @@
 # SparseMat
 有限要素法で使う疎行列用ライブラリです。
+本ライブラリのstaticライブラリファイルは **「SparseMat.lib」** です。
+
 EigenのEigen::SparseMatrixをベースとして作成されており、Eigenの疎行列ラッパーとして機能します。
 double型、complex型の両方に対応し、疎行列の四則演算なども用意されています。
 ソルバとしては、オリジナルの加速係数つきICCGソルバが用意されています。

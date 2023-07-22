@@ -30,7 +30,8 @@ https://github.com/JP-MARs/BaseLibraries
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   GetStart.md
    Basic.md
    BaseLibraries.md
    SparseMat.md
