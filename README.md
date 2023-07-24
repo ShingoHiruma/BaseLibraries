@@ -1,8 +1,9 @@
 # BasicLibralies
 ## 電磁界有限要素法用基本ライブラリ
 電磁界有限要素法で使いそうな基本関数と疎行列ライブラリです。
+なお、内部で他のオープンソースEigenとnlohmann-jsonを利用しています（000_thirdparty内に配置）。
 
-### BasifFuncsライブラリ
+### BasicFuncsライブラリ
 ガウスの積分点やC++11のメルセンヌ乱数のラッパーなどを提供する、基本関数ライブラリです
 
 ### SparseMat
