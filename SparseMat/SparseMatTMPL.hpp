@@ -8,8 +8,8 @@
 #include <fstream>
 
 
-#include <BasicDefines.hpp>
-#include <BasicDefinesC.hpp>
+#include <BaseDefines.hpp>
+#include <BaseDefinesC.hpp>
 #include <vector>
 #include <map>
 #include <string>
