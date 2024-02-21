@@ -246,5 +246,6 @@ SparseMatC SparseMatC::IC_decomp(dcomplex* diagD, const double accela) const{
 }
 
 
+
 /* end of namespace */
 };

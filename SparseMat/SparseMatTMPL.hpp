@@ -8,8 +8,8 @@
 #include <fstream>
 
 
-#include <BaseDefines.hpp>
-#include <BaseDefinesC.hpp>
+#include <BasicDefines.hpp>
+#include <BasicDefinesC.hpp>
 #include <vector>
 #include <map>
 #include <string>
@@ -26,7 +26,9 @@ using slv_int = int;
 class SparseMat;
 class SparseMatC;
 class SparseMatOperators;
-class MatSolvers;
+class MatSolversEigenMKL;
+class MatSolversICCG;
+
 
 /*
 //=======================================================
@@ -37,12 +39,13 @@ template<typename DType> class SparseMatTMPL{
 friend class SparseMat;
 friend class SparseMatC;
 friend class SparseMatOperators;
-friend class MatSolvers;
+friend class MatSolversEigenMKL;
+friend class MatSolversICCG;
 private:
 	slv_int size;																/* 行列の行数 */
 	bool is_fix;																/* スパース位置が確定しているか */
 	std::map<slv_int, DType>* tempMat;											/* 一時保存行列（キーが列位置） */
-	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;											/* Eigenスパース行列 */
+	Eigen::SparseMatrix<DType, Eigen::RowMajor> matrix;							/* Eigenスパース行列 */
 	/*-------------------------------------------------------*/
 	void add_typeN(slv_int gyo, slv_int retu, DType val);							/* 確定済み行列にpush */
 	/*  */
@@ -63,7 +66,7 @@ public:
 	bool isEmpty() const;																		/* 行列の中身が空かどうか */
 	void tempInitialize();																		/* 一時行列を作成 */
 	void fixedInitialize(slv_int size0);														/* 空でSparse行列をfix */
-	void fix();																					/* 一時配列を確定させる */
+	void fix(bool toSquare=false);																/* 一時配列を確定させる(bool toSquare: trueなら0を入れて正方行列にする) */
 	void refresh(){fix();};
 	void resetMat();																			/* 確定済み行列の値を０に再セット */
 	void getCols(slv_int* cols_data1, slv_int* cols_data2) const;								/* 各行の列のスタート・終了位置を返す */
@@ -79,6 +82,7 @@ public:
 	/*---------------------------------------------*/
 	void printMat(const std::string& str="Mat.csv");
 	void print() { std::cout << matrix << std::endl;};
+	void readMat(const std::string& filename);
 };
 
 /*=======================================================================*/
@@ -199,7 +203,8 @@ SparseMatTMPL<DType>& SparseMatTMPL<DType>::operator=(SparseMatTMPL<DType>&& Mat
 	if(Mat.is_fix){		
 		this->is_fix = Mat.is_fix;
 		this->size = Mat.size;
-		this->matrix.swap(Mat.matrix);
+		//this->matrix.swap(Mat.matrix);
+		this->matrix = std::move(Mat.matrix);
 	/* 未確定なら一時配列を移動コピー */
 	}else{
 		/* コピー先がまだ空なら全移動コピー */
@@ -264,7 +269,7 @@ void SparseMatTMPL<DType>::fixedInitialize(slv_int size0){
 // ● 一時配列を確定させる
 //=======================================================*/
 template<typename DType>
-void SparseMatTMPL<DType>::fix(){
+void SparseMatTMPL<DType>::fix(bool toSquare){
 	/* スパース位置が確定していたらなにもしない*/
 	if(is_fix){
 		std::cout << "already fixed sparse!"<< std::endl;
@@ -289,10 +294,15 @@ void SparseMatTMPL<DType>::fix(){
 		std::map<slv_int, DType> empty; empty.clear();
 		tempMat[i].swap(empty);
 	}
-	/* Eigenに確定(列方向の最大値も指定する必要あり)。行数の方が大きいなら正方、列の方が大きいなら長方形サイズにする */
 	max_retu++;
-	if(max_retu < size){
-		max_retu = size;
+	/* Eigenに確定(列方向の最大値も指定する必要あり)。 */
+	/* toSquare=true なら、行数の方が大きいなら正方、列の方が大きいなら長方形サイズにする */
+	/* toSquare=false なら、長方形のまま */
+	if(toSquare){		
+		if(max_retu < size){
+			tripletList.push_back(Eigen::Triplet<DType>(size-1, size-1, 0.0));
+			max_retu = size;
+		}	
 	}
 	matrix = Eigen::SparseMatrix<DType, Eigen::RowMajor>(size, max_retu);
 	matrix.setFromTriplets(tripletList.begin(), tripletList.end());
@@ -563,17 +573,17 @@ void SparseMatTMPL<DType>::printMat(const std::string& str){
 			fp << "-1" << std::endl;
 		}else{
 			for(slv_int j = start_pos1[i] ; j < end_pos1[i] ; j++){
-				fp << col_ptr1[j] << ", ";
+				fp << col_ptr1[j] << " ";
 			}
 			fp << std::endl;
 		}
 	}
-	fp <<std::endl << "Mat value : "  << std::endl;
+	fp <<"Mat value : "  << std::endl;
 	for(slv_int i = 0 ; i < size ; i++){
 		slv_int col_size = end_pos1[i]-start_pos1[i];
 		if(col_size > 0){
 			for(slv_int j = start_pos1[i] ; j < end_pos1[i] ; j++){
-				fp <<  std::scientific << val_ptr1[j] << ", ";
+				fp <<  std::scientific << val_ptr1[j] << " ";
 			}
 			fp << std::endl;
 		}else {
@@ -585,6 +595,69 @@ void SparseMatTMPL<DType>::printMat(const std::string& str){
 	delete[] end_pos1;
 
 }
+/*//=======================================================
+// ● ファイルから行列構成
+//=======================================================*/
+template<typename DType>
+void SparseMatTMPL<DType>::readMat(const std::string& filename){
+	std::fstream fp(filename, std::ios::in);
+	slv_int read_size;
+	std::string temp_str1, temp_str2, temp_str3;
+	fp >> temp_str1 >> temp_str2  >> temp_str3 >> read_size;
+	this->size = read_size;
+	std::cout << "read size " << read_size << std::endl;
+	if(tempMat != nullptr){
+		delete[] tempMat;
+		tempMat = nullptr;
+		tempMat = new std::map<slv_int, DType>[size];
+	} else{
+		tempMat = new std::map<slv_int, DType>[size];
+	}
+
+	int temp1, temp2;
+	slv_int* temp_sizes = new slv_int[size];
+	slv_int** temp_cols = new slv_int*[size];
+	for(slv_int i = 0 ; i < size ; i++){
+		fp >> temp_sizes[i];
+		temp_cols[i] = new slv_int[temp_sizes[i]];
+		std::cout << temp_sizes[i] << std::endl;
+	}
+	/**/
+	/**/
+	fp >> temp_str1 >> temp_str2;
+	for(slv_int i = 0 ; i < size ; i++){
+		if(temp_sizes[i] == 0){
+			fp >> temp1;
+		}else{
+			for(slv_int j = 0; j < temp_sizes[i]; j++){
+				fp >> temp2;
+				temp_cols[i][j] = temp2;
+				std::cout << i << ", " << j << " >" << temp2 << std::endl;
+			}
+		}
+	}
+	/**/
+	/**/
+	fp >> temp_str1 >> temp_str2  >> temp_str3;
+	std::cout << temp_str1 << ", " << temp_str2  << ", " <<  temp_str3 << std::endl;;
+	for(slv_int i = 0 ; i < size ; i++){
+		for(slv_int j = 0; j < temp_sizes[i]; j++){
+			double tempD;
+			fp >> tempD;
+			std::cout << i << ", " << j << " >" << tempD << std::endl;
+			this->add(i, temp_cols[i][j], tempD);
+		}
+	}
+	fp.close();
+	//
+	this->fix();
+	delete[] temp_sizes;	
+	for(slv_int i = 0 ; i < size ; i++){
+		delete[] temp_cols[i];
+	}
+	delete[] temp_cols;
+}
+
 
 
 /* テンプレート化 */

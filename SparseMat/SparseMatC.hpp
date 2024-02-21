@@ -17,7 +17,8 @@ namespace SRLfem{
 class SparseMatC{	
 friend class SparseMat;
 friend class SparseMatOperators;
-friend class MatSolvers;
+friend class MatSolversEigenMKL;
+friend class MatSolversICCG;
 private:
 	SparseMatBaseC* matrix;
 public:	
@@ -32,18 +33,19 @@ public:
 	SparseMatC& operator=(SparseMatC&& mat) noexcept;
 	/**/
 	bool isFixed() const{return matrix->is_fix;};												/* 確定済みかどうか */
-	bool isEmpty() const {return matrix->isEmpty();};													/* 行列の中身が空かどうか */
+	bool isEmpty() const {return matrix->isEmpty();};											/* 行列の中身が空かどうか */
 	void tempInitialize() {matrix->tempInitialize();};											/* 一時vector行列を作成 */
-	void fix() { matrix->fix(); };																/* 一時vector配列を確定させる */
+	void fix(bool toSquare=false) { matrix->fix(toSquare); };									/* 一時vector配列を確定させる */
 	void refresh(){matrix->refresh();};
-	void resetMat() {matrix->resetMat();};														/* 確定済み行列の値を０に再セット */
-	slv_int isInclude(slv_int gyo, slv_int target_r)const{ return matrix->isInclude(gyo, target_r);};			/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
+	void resetMat() {matrix->resetMat();};																	/* 確定済み行列の値を０に再セット */
+	slv_int isInclude(slv_int gyo, slv_int target_r)const{return matrix->isInclude(gyo, target_r);};		/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
 	void add(slv_int gyo, slv_int retu, dcomplex val){matrix->add(gyo, retu, val);};					/* 一時配列にpush */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<dcomplex>& row_val)const{matrix->getTargetRowVal(target, row_pos, row_val);};			/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
 	void getTargetColVal(slv_int target, std::vector<slv_int>& col_pos, std::vector<dcomplex>& col_val)const{matrix->getTargetColVal(target, col_pos, col_val);};			/* 指定した行の非ゼロの列位置と値をvectorに書き出す */
 	slv_int getMaxCol()const{return matrix->getMaxCol();};											/* スパース内の最大の列位置を返す */
 	void printMat(const std::string& str="Mat.csv") {matrix->printMat(str);};;
 	void print() { matrix->print(); };
+	void readMat(const std::string& filename){ matrix->readMat(filename); };
 	/* */
 	/* オペレータ群 */
 	dcomplex* operator*(const double* vec) const;	

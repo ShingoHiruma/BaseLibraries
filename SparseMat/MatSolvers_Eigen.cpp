@@ -1,12 +1,10 @@
-
-#include "MatSolvers.hpp"
-#include "SparseMatOperators.hpp"
+ï»¿
+#include "MatSolversEigenMKL.hpp"
 #include <000_thirdparty/Eigen/IterativeLinearSolvers>
-//#include <000_thirdparty/UnsupportedEigen/Eigen/IterativeSolvers>
-#include <000_thirdparty/Eigen//SparseCholesky>	
+#include <000_thirdparty/Eigen/SparseCholesky>	
 
 
-/* ê—p–¼‘O‹óŠÔ */
+/* å°‚ç”¨åå‰ç©ºé–“ */
 namespace SRLfem{
 
 
@@ -15,7 +13,7 @@ namespace SRLfem{
 //=======================================================
 //=======================================================
 //=======================================================
-Eigenƒ\ƒ‹ƒo
+Eigenã‚½ãƒ«ãƒ
 //=======================================================
 //=======================================================
 
@@ -23,10 +21,10 @@ Eigenƒ\ƒ‹ƒo
 	
 	
 /*//=======================================================
-// œ ICCG‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— ICCGã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
-bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init){
-	/* İ’è */
+bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init){
+	/* è¨­å®š */
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<double, Eigen::Lower, Eigen::NaturalOrdering<int>>> iccg;
 	iccg.setMaxIterations(max_ite);
 	iccg.setTolerance(conv_cri);
@@ -41,7 +39,7 @@ bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, cons
 	//std::cout << "err " << err << std::endl;
 	return(err <= conv_cri);
 }
-bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
+bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
 	Eigen::VectorXd vecB2(size0);
 	Eigen::VectorXd results2(size0);
 	for(int i = 0 ; i < size0 ; i++){
@@ -55,10 +53,10 @@ bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, cons
 }
 
 /*//=======================================================
-// œ BiCGstab‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— BiCGstabã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
-bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init){
-	/* İ’è */
+bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init){
+	/* è¨­å®š */
 	Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT<double>> bicg;
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
@@ -73,7 +71,7 @@ bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, 
 	//std::cout << "err " << err << std::endl;
 	return(err <= conv_cri);
 }
-bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
+bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
 	Eigen::VectorXd vecB2(size0);
 	Eigen::VectorXd results2(size0);
 	for(int i = 0 ; i < size0 ; i++){
@@ -88,10 +86,10 @@ bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, 
 
 
 /*//=======================================================
-// œ ICCG‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— ICCGã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
-bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init){
-	/* İ’è */
+bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init){
+	/* è¨­å®š */
 	Eigen::ConjugateGradient<Eigen::SparseMatrix<dcomplex, Eigen::RowMajor>, Eigen::Lower|Eigen::Upper, Eigen::IncompleteCholesky<dcomplex, Eigen::Lower, Eigen::NaturalOrdering<int>>> iccg;
 	iccg.setMaxIterations(max_ite);
 	iccg.setTolerance(conv_cri);
@@ -106,7 +104,7 @@ bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, cons
 	//std::cout << "err " << err << std::endl;
 	return(err <= conv_cri);
 }
-bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
+bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
 	Eigen::VectorXcd vecB2(size0);
 	Eigen::VectorXcd results2(size0);
 	for(int i = 0 ; i < size0 ; i++){
@@ -121,10 +119,10 @@ bool MatSolvers::solveEigenICCG(const slv_int size0, const double conv_cri, cons
 
 
 /*//=======================================================
-// œ BiCGstab‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— BiCGstabã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
-bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init){
-	/* İ’è */
+bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init){
+	/* è¨­å®š */
 	Eigen::BiCGSTAB<Eigen::SparseMatrix<dcomplex, Eigen::RowMajor>, Eigen::IncompleteLUT<dcomplex>> bicg;
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
@@ -139,7 +137,7 @@ bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, 
 	//std::cout << "err " << err << std::endl;
 	return(err <= conv_cri);
 }
-bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
+bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
 	Eigen::VectorXcd vecB2(size0);
 	Eigen::VectorXcd results2(size0);
 	for(int i = 0 ; i < size0 ; i++){
@@ -154,9 +152,9 @@ bool MatSolvers::solveEigenBiCGstab(const slv_int size0, const double conv_cri, 
 
 
 /*//=======================================================
-// œ SimplicialLDLT(Eigenƒ\ƒ‹ƒo)
+// â— SimplicialLDLT(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
-bool MatSolvers::solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results){	
+bool MatSolversEigenMKL::solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results){	
 	Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > solver;
 	solver.compute(matA.matrix->matrix);
 	if(solver.info() != Eigen::Success) {
@@ -168,7 +166,7 @@ bool MatSolvers::solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& 
 	}
 	return true;
 }
-bool MatSolvers::solveEigenSimplicialLDLT(const slv_int size0, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results){	
+bool MatSolversEigenMKL::solveEigenSimplicialLDLT(const slv_int size0, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results){	
 	Eigen::SimplicialLDLT< Eigen::SparseMatrix<dcomplex> > solver;
 	solver.compute(matA.matrix->matrix);
 	if(solver.info() != Eigen::Success) {

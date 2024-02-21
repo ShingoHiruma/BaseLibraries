@@ -1,5 +1,5 @@
 ﻿
-#include "MatSolvers.hpp"
+#include "MatSolversICCG.hpp"
 #include "SparseMatOperators.hpp"
 
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */
@@ -19,7 +19,7 @@ ICCCGソルバ
 /*//=======================================================
 // ● ICCGで解く(右辺ノルム内部計算パターン)
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
+bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size ; i++){
@@ -33,13 +33,31 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 /*//=======================================================
 // ● ICCGで解く・外部実行本体
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
+bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	/* コレスキー用スパース行列作成 */
 	dcomplex* diagD = new dcomplex[size0];
+	double accela_val = accera;
+	/* 加速係数が負なら自動決定モードへ */
+	if(accera < -1){
+		accela_val = 1.05;
+		/* 対角が正になるまで実施 */
+		for(int kkk = 0; kkk < 10; kkk++){
+			SparseMatC matL0 = matA.IC_decomp(diagD, accela_val);
+			bool ok = true;
+			for(slv_int i = 0; i < size0; i++){
+				ok &= (diagD[i].real() > 0);
+			}
+			if(ok){
+				break;
+			}
+			accela_val += 0.05;
+		}
+	}
+	/* 確定 */
 	SparseMatC matL = matA.IC_decomp(diagD, accera);
 	SparseMatC matL_tr = matL.trans();
 
-	bool bl= solveICCG(size0, conv_cri, max_ite, accera, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results, init);
+	bool bl= solveICCG(size0, conv_cri, max_ite, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results, init);
 	delete[] diagD;
 	return bl;
 }
@@ -47,7 +65,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 /*//=======================================================
 // ● ICCGで解く(入力右辺がEigen)
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
+bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size0 ; i++){
@@ -66,7 +84,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 /*//=======================================================
 // ● ICCGで解く（本体）
 //=======================================================*/
-bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int max_ite, const double accera, const double normB, 
+bool MatSolversICCG::solveICCG(const slv_int size, const double conv_cri, const int max_ite, const double normB, 
 						   const dcomplex* diagD, const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results, bool init){
 
 	/* 要素確保 */
@@ -108,7 +126,15 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	preProcess(size, matL, matL_tr, diagD, EvecR, EvecP);
 	EvecLDV = EvecP;
 
+	/* 最良結果の保存用（フラグがonなら） */
+	dcomplex* best_results=nullptr;
+	double best_resi_value = 1.0e+6;
+	if(is_save_best){
+		best_results = new dcomplex[size];
+	}
+
 	bool is_conv = false;
+	int bad_counter = 0;
 	/* 反復開始 */
 	int It = 0;
 	for(It = 0 ; It < max_ite ; It++){
@@ -141,6 +167,13 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 		}
 		EvecR = EvecR - alpha * EtempAP;
 		const double normR = EvecR.norm() / normB;
+
+
+		/* フラグがonなら、残差保存 */
+		if(is_save_residual_log){
+			residual_log.push_back(normR);
+		}
+		/* 収束判定 */
 		if(normR < conv_cri){
 			//std::cout << "Solved!!! -- " << normR  << " " << It << std::endl;
 			is_conv = true;
@@ -148,6 +181,32 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 			//}else if( It % 100 == 0 ){
 			//	std::cout << "NORMR is -- " << normR  << " " << It << std::endl;
 		}
+		if(normR < best_resi_value){
+			best_resi_value = normR;
+			/* 最良値の更新(フラグがonなら) */		
+			if(is_save_best){
+				for(slv_int i = 0; i < size; i++){
+					best_results[i] = results[i];
+				}
+			}
+		}
+		/* 発散判定１ */
+		if(diverge_judge_type == 1){
+			/* 最良値×val以下なら、発散カウント初期化 */
+			if(normR < best_resi_value * bad_div_val){
+				bad_counter = 0;
+			}
+			/* 最良値×val以上なら、発散カウント＋ */
+			if(normR >= best_resi_value * bad_div_val){
+				bad_counter++;
+			}
+			/* 発散カウントが閾値オーバー＝発散扱いで終わる */
+			if(bad_counter >= bad_div_count_thres){
+				is_conv = false;
+				break;
+			}
+		}
+
 		/* v=(LDLT)-1rk　を計算 */
 		preProcess(size, matL, matL_tr, diagD, EvecR, EvecLDV);
 		/* β計算 */
@@ -158,8 +217,15 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	}
 	delete[] start_posA;
 	delete[] end_posA;
-	if(It >= max_ite - 1){
+	if(!is_conv){
 		std::cout << "not Convergence!!! " << std::endl;
+		/* 最良値を代入(フラグがonなら) */
+		if(is_save_best){
+			for(slv_int i = 0; i < size; i++){
+				results[i] = best_results[i];
+			}
+			delete[] best_results;
+		}
 	}
 	return is_conv ;
 }
@@ -167,7 +233,7 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 /*//=======================================================
 // ● 前処理
 //=======================================================*/
-void MatSolvers::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const dcomplex *vecR, dcomplex *vec){
+void MatSolversICCG::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const dcomplex *vecR, dcomplex *vec){
 	const slv_int size = size0;
 	dcomplex s;
 
@@ -212,7 +278,7 @@ void MatSolvers::preProcess(const slv_int size0, const SparseMatBaseC& matL, con
 /*//=======================================================
 // ● 前処理
 //=======================================================*/
-void MatSolvers::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
+void MatSolversICCG::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
 	const slv_int size = size0;
 	dcomplex s;
 

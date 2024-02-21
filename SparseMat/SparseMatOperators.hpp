@@ -365,8 +365,8 @@ template<typename Mat1, typename Mat2, typename Mat3, typename Mat0, typename DT
 void SparseMatOperators::MatProduct(Mat0& mat_ans, const Mat1& matA, const Mat2& matB, const Mat3& matC){
 	auto tempSparse = matA.matrix * matB.matrix * matC.matrix;
 	tempSparse.pruned();
-	Mat0* matABC_damy = new Mat0(std::move(tempSparse));
-	mat_ans = std::move(*matABC_damy);
+	Mat0 matABC_damy( std::move(tempSparse) );
+	mat_ans = std::move(matABC_damy);
 }
 
 

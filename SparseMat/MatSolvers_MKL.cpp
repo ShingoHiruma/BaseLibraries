@@ -1,15 +1,14 @@
+ï»¿
 
-
-#include "MatSolvers.hpp"
+#include "MatSolversEigenMKL.hpp"
 //#define INTEL_MKL_SOLVER_USING
 #ifdef INTEL_MKL_SOLVER_USING
 
 
-#include "SparseMatOperators.hpp"
-#include "mkl.h"
+#include <mkl.h>
 #include <omp.h>
 
-/* ê—p–¼‘O‹óŠÔ */
+/* å°‚ç”¨åå‰ç©ºé–“ */
 namespace SRLfem{
 
 
@@ -18,19 +17,19 @@ namespace SRLfem{
 //=======================================================
 //=======================================================
 //=======================================================
-Eigenƒ\ƒ‹ƒo
+Eigenã‚½ãƒ«ãƒ
 //=======================================================
 //=======================================================
 
 */
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(”ñ‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(éå¯¾ç§°)
 //=======================================================*/
 template<typename MType, typename VType>
-bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para=1){
+bool MatSolversEigenMKL::solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para=1){
     const int n = size0;
-    /* ƒXƒp[ƒXŒ`®ƒRƒs[ */
+    /* ã‚¹ãƒ‘ãƒ¼ã‚¹å½¢å¼ã‚³ãƒ”ãƒ¼ */
     int *ia = new int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
     int total;
@@ -46,7 +45,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
     auto col_ptr = matA.matrix->getColPtr();
     a = new VType[total];
     auto val_ptr = matA.matrix->getValuePtr();
-    /* ”ñ‘ÎÌ‚Ì‚Æ‚«‚»‚Ì‚Ü‚Ü */
+    /* éå¯¾ç§°ã®ã¨ãï¼ãã®ã¾ã¾ */
     if(mat_mode == 11 || mat_mode == 13){
         for(int i = 0; i < n; ++i){
             ia[i] = row_ptr[i];
@@ -58,7 +57,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
             ja[i]++;
             a[i] = val_ptr[i];
         }
-    /* ‘ÎÌ‚Ì‚Æ‚«ãOŠp‚¾‚¯æ‚èo‚· */
+    /* å¯¾ç§°ã®ã¨ãï¼ä¸Šä¸‰è§’ã ã‘å–ã‚Šå‡ºã™ */
     }else{
         int temp_count=0;
         int push_count=0;
@@ -90,10 +89,10 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
         ia[size0] = total+1;
     }
 
-    /* s—ñƒ^ƒCƒv‚Ìİ’èİ’è */
+    /* è¡Œåˆ—ã‚¿ã‚¤ãƒ—ã®è¨­å®šè¨­å®š */
     int mtype = mat_mode;       
 
-    /* ‰E•ÓƒRƒs[ */
+    /* å³è¾ºã‚³ãƒ”ãƒ¼ */
     VType* b = new VType[n];
     for(int i = 0; i < n; ++i){
         b[i] = vecB[i];
@@ -137,7 +136,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
     for (int i = 0; i < 64; i++ ){
         pt[i] = 0;
     }
-    /* ˆ—‚P */
+    /* å‡¦ç†ï¼‘ */
     phase = 11;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -147,7 +146,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
         delete[] b;
         return false;
     }
-    /* ˆ—‚Q */
+    /* å‡¦ç†ï¼’ */
     phase = 22;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -157,7 +156,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
         delete[] b;
         return false;
     }    
-    /* ˆ—‚R */
+    /* å‡¦ç†ï¼“ */
     phase = 33;
     iparm[7] = 2;   /* Max numbers of iterative refinement steps. */
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, b, results, &error);
@@ -168,7 +167,7 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
         delete[] b;
         return false;
     }
-    /* ƒƒ‚ƒŠŠJ•ú‚P */
+    /* ãƒ¡ãƒ¢ãƒªé–‹æ”¾ï¼‘ */
     phase = -1;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, &ddum, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -181,33 +180,33 @@ bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VTy
 }
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(å¯¾ç§°)
 //=======================================================*/
-bool MatSolvers::solveMLKpardisoSym(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1){
+bool MatSolversEigenMKL::solveMLKpardisoSym(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1){
     bool bl = solveMLKpardisoBase<SparseMat, double>(size0, matA, vecB, results, 1, num_para);
     return bl;
 }
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(•¡‘f‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(è¤‡ç´ å¯¾ç§°)
 //=======================================================*/
-bool MatSolvers::solveMLKpardisoSym(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1){
+bool MatSolversEigenMKL::solveMLKpardisoSym(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1){
     bool bl = solveMLKpardisoBase<SparseMatC, dcomplex>(size0, matA, vecB, results, 3, num_para);
     return bl;
 }
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(”ñ‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(éå¯¾ç§°)
 //=======================================================*/
-bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1){
+bool MatSolversEigenMKL::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para=1){
     bool bl = solveMLKpardisoBase<SparseMat, double>(size0, matA, vecB, results, 11, num_para);
     return bl;
 }
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(”ñ•¡‘f‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(éè¤‡ç´ å¯¾ç§°)
 //=======================================================*/
-bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1){
+bool MatSolversEigenMKL::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para=1){
     bool bl = solveMLKpardisoBase<SparseMatC, dcomplex>(size0, matA, vecB, results, 13, num_para);
     return bl;
 }
@@ -215,11 +214,11 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
 
 #ifdef AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(”ñ‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(éå¯¾ç§°)
 //=======================================================*/
 bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
     const int n = size0;
-    /* ƒXƒp[ƒXŒ`®ƒRƒs[ */
+    /* ã‚¹ãƒ‘ãƒ¼ã‚¹å½¢å¼ã‚³ãƒ”ãƒ¼ */
     int *ia = new int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
     const int total = matA.matrix->matrix.nonZeros();
@@ -239,9 +238,9 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
         a[i] = val_ptr[i];
     }
 
-    /* À”ñ‘ÎÌİ’è */
+    /* å®Ÿéå¯¾ç§°è¨­å®š */
     int mtype = 11;       
-    /* ‰E•ÓƒRƒs[ */
+    /* å³è¾ºã‚³ãƒ”ãƒ¼ */
     double* b = new double[n];
     for(int i = 0; i < n; ++i){
         b[i] = vecB[i];
@@ -285,7 +284,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
     for (int i = 0; i < 64; i++ ){
         pt[i] = 0;
     }
-    /* ˆ—‚P */
+    /* å‡¦ç†ï¼‘ */
     phase = 11;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -295,7 +294,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
         delete[] b;
         return false;
     }
-    /* ˆ—‚Q */
+    /* å‡¦ç†ï¼’ */
     phase = 22;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -305,7 +304,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
         delete[] b;
         return false;
     }    
-    /* ˆ—‚R */
+    /* å‡¦ç†ï¼“ */
     phase = 33;
     iparm[7] = 2;   /* Max numbers of iterative refinement steps. */
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, b, results, &error);
@@ -316,7 +315,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
         delete[] b;
         return false;
     }
-    /* ƒƒ‚ƒŠŠJ•ú‚P */
+    /* ãƒ¡ãƒ¢ãƒªé–‹æ”¾ï¼‘ */
     phase = -1;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, &ddum, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -330,11 +329,11 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
 
 
 /*//=======================================================
-// œ MKL Pardiso‚Å‰ğ‚­(•¡‘f/”ñ‘ÎÌ)
+// â— MKL Pardisoã§è§£ã(è¤‡ç´ /éå¯¾ç§°)
 //=======================================================*/
 bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex* results, int num_para){
     const int n = size0;
-    /* ƒXƒp[ƒXŒ`®ƒRƒs[ */
+    /* ã‚¹ãƒ‘ãƒ¼ã‚¹å½¢å¼ã‚³ãƒ”ãƒ¼ */
     int *ia = new int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
     const int total = matA.matrix->matrix.nonZeros();
@@ -354,9 +353,9 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
         a[i] = val_ptr[i];
     }
 
-    /* À”ñ‘ÎÌİ’è */
+    /* å®Ÿéå¯¾ç§°è¨­å®š */
     int mtype = 13;       
-    /* ‰E•ÓƒRƒs[ */
+    /* å³è¾ºã‚³ãƒ”ãƒ¼ */
     dcomplex* b = new dcomplex[n];
     for(int i = 0; i < n; ++i){
         b[i] = vecB[i];
@@ -400,7 +399,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
     for (int i = 0; i < 64; i++ ){
         pt[i] = 0;
     }
-    /* ˆ—‚P */
+    /* å‡¦ç†ï¼‘ */
     phase = 11;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -410,7 +409,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
         delete[] b;
         return false;
     }
-    /* ˆ—‚Q */
+    /* å‡¦ç†ï¼’ */
     phase = 22;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
     if ( error != 0 ){
@@ -420,7 +419,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
         delete[] b;
         return false;
     }    
-    /* ˆ—‚R */
+    /* å‡¦ç†ï¼“ */
     phase = 33;
     iparm[7] = 2;   /* Max numbers of iterative refinement steps. */
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, a, ia, ja, &idum, &nrhs, iparm, &msglvl, b, results, &error);
@@ -431,7 +430,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
         delete[] b;
         return false;
     }
-    /* ƒƒ‚ƒŠŠJ•ú‚P */
+    /* ãƒ¡ãƒ¢ãƒªé–‹æ”¾ï¼‘ */
     phase = -1;
     PARDISO (pt, &maxfct, &mnum, &mtype, &phase, &n, &ddum, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -454,19 +453,19 @@ namespace SRLfem{
 
 
 template<typename MType, typename VType>
-bool MatSolvers::solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para){
+bool MatSolversEigenMKL::solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para){
     return true;
 }
-bool MatSolvers::solveMLKpardisoSym(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
+bool MatSolversEigenMKL::solveMLKpardisoSym(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
     return true;
 }
-bool MatSolvers::solveMLKpardisoSym(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para){
+bool MatSolversEigenMKL::solveMLKpardisoSym(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para){
     return true;
 }
-bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
+bool MatSolversEigenMKL::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
     return true;
 }
-bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para){
+bool MatSolversEigenMKL::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex *results, int num_para){
     return true;
 }
 
