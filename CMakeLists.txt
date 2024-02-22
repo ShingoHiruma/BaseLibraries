@@ -13,3 +13,4 @@ set(Basedir ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(SparseMat)
 # サンプルを登録
 add_subdirectory(examples/example_sparse_mat)
+add_subdirectory(examples/example_abmc)
