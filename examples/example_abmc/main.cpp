@@ -109,12 +109,19 @@ int main(int argc, char *argv[])
 	auto end = std::chrono::high_resolution_clock::now();			  // record end time
 	std::chrono::duration<double, std::milli> duration = end - start; // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
-	std::cout << std::endl;
 
+	double normX = 0.0;
+	double normK = 0.0;
 	for (int i = 0; i < numRows; i++)
 	{
+		normX += results00[i] * results00[i];
+		normK += results00[i] * vec_b[i];
 		results00[i] = 0;
 	}
+	normX = sqrt(normX);
+	std::cout << "Norm of X: " << normX << std::endl;
+	std::cout << "K-Norm of X: " << normK << std::endl;
+	std::cout << std::endl;
 
 	omp_set_num_threads(20);
 	std::cout << "ICCG solver (20 core)" << std::endl;
@@ -123,12 +130,19 @@ int main(int argc, char *argv[])
 	end = std::chrono::high_resolution_clock::now(); // record end time
 	duration = end - start;							 // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
-	std::cout << std::endl;
 
+	normX = 0.0;
+	normK = 0.0;
 	for (int i = 0; i < numRows; i++)
 	{
+		normX += results00[i] * results00[i];
+		normK += results00[i] * vec_b[i];
 		results00[i] = 0;
 	}
+	normX = sqrt(normX);
+	std::cout << "Norm of X: " << normX << std::endl;
+	std::cout << "K-Norm of X: " << normK << std::endl;
+	std::cout << std::endl;
 
 	std::cout << "ICCG solver with ABMC ordering (20 core)" << std::endl;
 	start = std::chrono::high_resolution_clock::now(); // record start time
@@ -136,5 +150,17 @@ int main(int argc, char *argv[])
 	end = std::chrono::high_resolution_clock::now(); // record end time
 	duration = end - start;							 // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
+	normX = 0.0;
+	normK = 0.0;
+	for (int i = 0; i < numRows; i++)
+	{
+		normX += results00[i] * results00[i];
+		normK += results00[i] * vec_b[i];
+		results00[i] = 0;
+	}
+	normX = sqrt(normX);
+	std::cout << "Norm of X: " << normX << std::endl;
+	std::cout << "K-Norm of X: " << normK << std::endl;
+	std::cout << std::endl;
 	return 1;
 }

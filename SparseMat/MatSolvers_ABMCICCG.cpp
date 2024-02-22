@@ -626,13 +626,10 @@ namespace SRLfem
             vec_r[i] = vec_x[i];
         }
 
-        double normX = 0.0;
         for (int i = 0; i < n; i++)
         {
             vec_x[reverse_ordering[i]] = vec_r[i];
-            normX += vec_x[reverse_ordering[i]] * vec_x[reverse_ordering[i]];
         }
-        std::cout << "normX = " << sqrt(normX) << std::endl;
 
         delete[] vec_r;
         delete[] vec_Pb;
