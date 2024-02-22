@@ -8,7 +8,6 @@ using namespace std;
 #include <SparseMat/SparseMatC.hpp>
 #include <SparseMat/SparseMatOperators.hpp>
 #include <SparseMat/MatSolvers.hpp>
-#include <SparseMat/MatSolvers_ABMCICCG.hpp>
 
 #ifdef IS_WINDOWS_SISTEM
 #ifdef _DEBUG
