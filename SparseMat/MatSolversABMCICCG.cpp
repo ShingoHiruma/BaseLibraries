@@ -1,4 +1,4 @@
-#include "MatSolvers.hpp"
+#include "MatSolversABMCICCG.hpp"
 /*
     This file is part of JP_Mars, a C++ template library for linear algebra.
 
@@ -16,7 +16,7 @@
 
 namespace SRLfem
 {
-    void MatSolvers::sortAlgebraicMultiColor(int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
+    void MatSolversABMCICCG::sortAlgebraicMultiColor(int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
     {
         const slv_int numRow = size0;
         int num_colors_ = num_colors;
@@ -90,10 +90,10 @@ namespace SRLfem
         delete[] end_pos;
     }
 
-    void MatSolvers::makeAlgebraicBlock(int size0, const SparseMatBaseD &A,
-                                        SparseMatBaseD &Mb,
-                                        std::vector<std::vector<int>> &block_list,
-                                        int num_blocks)
+    void MatSolversABMCICCG::makeAlgebraicBlock(int size0, const SparseMatBaseD &A,
+                                                SparseMatBaseD &Mb,
+                                                std::vector<std::vector<int>> &block_list,
+                                                int num_blocks)
     {
         const slv_int numRow = size0;
         int max_block = (numRow + num_blocks - 1) / num_blocks;
@@ -159,17 +159,17 @@ namespace SRLfem
         delete[] end_pos;
     }
 
-    void MatSolvers::sortAlgebraicBlockMultiColor(int size0,
-                                                  const SparseMatBaseD &A,
-                                                  SparseMatBaseD &PA,
-                                                  const double *b,
-                                                  double *Pb,
-                                                  std::vector<std::vector<int>> &block_list,
-                                                  std::vector<std::vector<int>> &color_list,
-                                                  std::vector<int> &ordering,
-                                                  std::vector<int> &reverse_ordering,
-                                                  int num_blocks,
-                                                  int num_colors)
+    void MatSolversABMCICCG::sortAlgebraicBlockMultiColor(int size0,
+                                                          const SparseMatBaseD &A,
+                                                          SparseMatBaseD &PA,
+                                                          const double *b,
+                                                          double *Pb,
+                                                          std::vector<std::vector<int>> &block_list,
+                                                          std::vector<std::vector<int>> &color_list,
+                                                          std::vector<int> &ordering,
+                                                          std::vector<int> &reverse_ordering,
+                                                          int num_blocks,
+                                                          int num_colors)
     {
         int numRow = size0;
 
@@ -250,17 +250,17 @@ namespace SRLfem
     }
 
     /* Conjugate gradient method for ICCG parallelized by ABMC ordering*/
-    bool MatSolvers::parallelIccgSolv(int size0,
-                                      const SparseMatBaseD &A,
-                                      const SparseMatBaseD &L,
-                                      const SparseMatBaseD &Lt,
-                                      std::vector<std::vector<int>> &block_list,
-                                      std::vector<std::vector<int>> &color_list,
-                                      const double *diagD,
-                                      const double *b,
-                                      double *x,
-                                      double eps,
-                                      int numItr)
+    bool MatSolversABMCICCG::parallelIccgSolv(int size0,
+                                              const SparseMatBaseD &A,
+                                              const SparseMatBaseD &L,
+                                              const SparseMatBaseD &Lt,
+                                              std::vector<std::vector<int>> &block_list,
+                                              std::vector<std::vector<int>> &color_list,
+                                              const double *diagD,
+                                              const double *b,
+                                              double *x,
+                                              double eps,
+                                              int numItr)
     {
         /*     Solution of system of linear equation                     */
         /*             A*X = B (A:symmetric)                             */
@@ -296,6 +296,23 @@ namespace SRLfem
         Eigen::VectorXd EvecX(n);
 
         eps2 = eps * eps;
+
+        /* 最良結果の保存用（フラグがonなら） */
+        double *best_results = nullptr;
+        double best_resi_value = 1.0e+6;
+        if (is_save_best)
+        {
+            best_results = new double[n];
+        }
+
+        int bad_counter = 0;
+        double normB = 0.0;
+        double normR = 0.0;
+        for (int i = 0; i < n; i++)
+        {
+            normB += b[i] * b[i];
+        }
+        normB = sqrt(normB);
 
         try
         {
@@ -366,8 +383,14 @@ namespace SRLfem
                     r(i) -= alpha * ap(i);
                     // r2sum += r(i) * r(i);
                 }
-                r2sum = r.dot(r);
+                // r2sum = r.dot(r);
+                normR = r.norm();
 
+                /* フラグがonなら、残差保存 */
+                if (is_save_residual_log)
+                {
+                    residual_log.push_back(sqrt(r2sum) / normB);
+                }
                 // std::cout << k << " : norm{r} = " << sqrt(fabs(r2sum)) << std::endl;
 
                 /*** check convergence**/
@@ -378,6 +401,39 @@ namespace SRLfem
                     numItr = k + 1;
                     is_conv = true;
                     break;
+                }
+
+                if (normR < best_resi_value)
+                {
+                    best_resi_value = normR;
+                    /* 最良値の更新(フラグがonなら) */
+                    if (is_save_best)
+                    {
+                        for (slv_int i = 0; i < n; i++)
+                        {
+                            best_results[i] = results[i];
+                        }
+                    }
+                }
+                /* 発散判定１ */
+                if (diverge_judge_type == 1)
+                {
+                    /* 最良値×val以下なら、発散カウント初期化 */
+                    if (normR < best_resi_value * bad_div_val)
+                    {
+                        bad_counter = 0;
+                    }
+                    /* 最良値×val以上なら、発散カウント＋ */
+                    if (normR >= best_resi_value * bad_div_val)
+                    {
+                        bad_counter++;
+                    }
+                    /* 発散カウントが閾値オーバー＝発散扱いで終わる */
+                    if (bad_counter >= bad_div_count_thres)
+                    {
+                        is_conv = false;
+                        break;
+                    }
                 }
 
                 /***solve [L][D][Lt]{ru} = {r}***/
@@ -404,6 +460,15 @@ namespace SRLfem
                 numItr = -1;
                 std::cout << "--- not converged ---" << std::endl;
                 std::cout << "Number of iteration = " << k << std::endl;
+                /* 最良値を代入(フラグがonなら) */
+                if (is_save_best)
+                {
+                    for (slv_int i = 0; i < size; i++)
+                    {
+                        results[i] = best_results[i];
+                    }
+                    delete[] best_results;
+                }
             }
         }
         catch (...)
@@ -415,8 +480,8 @@ namespace SRLfem
     }
 
     /* *********************************************************** */
-    void MatSolvers::parallelIcSolv(int size0, const SparseMatBaseD &L, const SparseMatBaseD &Lt, std::vector<std::vector<int>> &block_list, std::vector<std::vector<int>> &color_list,
-                                    const double *diagD, const Eigen::VectorXd &b, Eigen::VectorXd &x)
+    void MatSolversABMCICCG::parallelIcSolv(int size0, const SparseMatBaseD &L, const SparseMatBaseD &Lt, std::vector<std::vector<int>> &block_list, std::vector<std::vector<int>> &color_list,
+                                            const double *diagD, const Eigen::VectorXd &b, Eigen::VectorXd &x)
     {
         //
         //              Solve system of linear equations
@@ -515,7 +580,7 @@ namespace SRLfem
         }
     }
 
-    bool MatSolvers::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMat &matA, double *vec_b, double *vec_x, int num_blocks, int num_colors)
+    bool MatSolversABMCICCG::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMat &matA, double *vec_b, double *vec_x, int num_blocks, int num_colors)
     {
         bool is_conv = false;
 
@@ -543,7 +608,7 @@ namespace SRLfem
 
         std::cout << "start ABMC" << std::endl;
         auto start = std::chrono::high_resolution_clock::now(); // record start time
-        MatSolvers::sortAlgebraicBlockMultiColor(n, *(matA.matrix), *(PA.matrix), vec_b, vec_Pb, block_list, color_list, ordering, reverse_ordering, num_blocks, num_colors);
+        MatSolversABMCICCG::sortAlgebraicBlockMultiColor(n, *(matA.matrix), *(PA.matrix), vec_b, vec_Pb, block_list, color_list, ordering, reverse_ordering, num_blocks, num_colors);
         auto end = std::chrono::high_resolution_clock::now();             // record stop time
         std::chrono::duration<double, std::milli> duration = end - start; // calculate duration (ms)
         std::cout << "ABMC(total): " << duration.count() << "ms" << std::endl;
@@ -564,7 +629,7 @@ namespace SRLfem
         std::cout << "Transpose matrix: " << duration.count() << "ms" << std::endl;
 
         start = std::chrono::high_resolution_clock::now(); // record start time
-        is_conv = MatSolvers::parallelIccgSolv(n, *(PA.matrix), *(matL.matrix), *(matL_tr.matrix), block_list, color_list, diagD, vec_Pb, vec_x, epsilon, max_ite);
+        is_conv = MatSolversABMCICCG::parallelIccgSolv(n, *(PA.matrix), *(matL.matrix), *(matL_tr.matrix), block_list, color_list, diagD, vec_Pb, vec_x, epsilon, max_ite);
         end = std::chrono::high_resolution_clock::now(); // record stop time
         duration = end - start;                          // calculate duration (ms)
         std::cout << "Iteration: " << duration.count() << "ms" << std::endl;

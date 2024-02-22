@@ -39,7 +39,6 @@ namespace SRLfem
 		friend class SparseMatC;
 		friend class SparseMatOperators;
 		friend class MatSolvers;
-		friend class ABMCICCG;
 
 	private:
 		slv_int size;										/* 行列の行数 */

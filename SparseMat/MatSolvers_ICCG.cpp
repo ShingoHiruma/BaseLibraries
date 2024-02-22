@@ -46,7 +46,7 @@ namespace SRLfem
 		bool bl = solveICCG(size0, conv_cri, max_ite, accera, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results, init);
 		auto end = std::chrono::high_resolution_clock::now();			  // 終了時間を記録
 		std::chrono::duration<double, std::milli> duration = end - start; // 経過時間を計算（ミリ秒単位）
-		std::cout << "トータルの時間: " << duration.count() << "ミリ秒" << std::endl;
+		std::cout << "Iteration: " << duration.count() << "ms" << std::endl;
 
 		delete[] diagD;
 		return bl;

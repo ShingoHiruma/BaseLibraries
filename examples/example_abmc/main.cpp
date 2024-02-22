@@ -100,15 +100,41 @@ int main(int argc, char *argv[])
 	}
 	normB = sqrt(normB);
 
-	std::cout << numRows << std::endl;
+	std::cout << "Problem size: " << numRows << std::endl;
 
 	auto start = std::chrono::high_resolution_clock::now(); // record start time
-	omp_set_num_threads(20);
-	// bool bl1 = SRLfem::MatSolvers::solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
-	bool bl2 = SRLfem::ABMCICCG::solveICCGwithABMC(numRows, epsilon, max_itr, accera, normB, matrix, vec_b, results00, 512, 40);
+	omp_set_num_threads(1);
+	std::cout << "ICCG solver (1 core)" << std::endl;
+	bool bl1 = SRLfem::MatSolvers::solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
 	auto end = std::chrono::high_resolution_clock::now();			  // record end time
 	std::chrono::duration<double, std::milli> duration = end - start; // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
+	std::cout << std::endl;
 
+	for (int i = 0; i < numRows; i++)
+	{
+		results00[i] = 0;
+	}
+
+	omp_set_num_threads(20);
+	std::cout << "ICCG solver (20 core)" << std::endl;
+	start = std::chrono::high_resolution_clock::now(); // record start time
+	bool bl2 = SRLfem::MatSolvers::solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
+	end = std::chrono::high_resolution_clock::now(); // record end time
+	duration = end - start;							 // calculate duration (ms)
+	std::cout << "Total: " << duration.count() << "ms" << std::endl;
+	std::cout << std::endl;
+
+	for (int i = 0; i < numRows; i++)
+	{
+		results00[i] = 0;
+	}
+
+	std::cout << "ICCG solver with ABMC ordering (20 core)" << std::endl;
+	start = std::chrono::high_resolution_clock::now(); // record start time
+	bool bl3 = SRLfem::MatSolvers::solveICCGwithABMC(numRows, epsilon, max_itr, accera, normB, matrix, vec_b, results00, 512, 40);
+	end = std::chrono::high_resolution_clock::now(); // record end time
+	duration = end - start;							 // calculate duration (ms)
+	std::cout << "Total: " << duration.count() << "ms" << std::endl;
 	return 1;
 }

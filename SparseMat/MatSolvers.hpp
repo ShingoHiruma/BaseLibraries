@@ -9,6 +9,10 @@
 #include "SparseMatC.hpp"
 #include <cfloat>
 
+#include <vector>
+#include <queue>
+#include <chrono>
+
 #ifdef OMP_USING_MAT_SOL
 #include <omp.h>
 #elseifdef OMP_USING_ICCG
@@ -78,6 +82,71 @@ namespace SRLfem
 		static bool solveMLKpardisoSym(const slv_int size0, const SparseMatC &matA, dcomplex *vecB, dcomplex *results, int num_para = 1);
 		static bool solveMLKpardiso(const slv_int size0, const SparseMat &matA, double *vecB, double *results, int num_para = 1);
 		static bool solveMLKpardiso(const slv_int size0, const SparseMatC &matA, dcomplex *vecB, dcomplex *results, int num_para = 1);
+
+		//
+		// Sort by Algebraic Multi-Color Ordering
+		static void sortAlgebraicMultiColor(int size0,
+											const SparseMatBaseD &A,
+											SparseMatBaseD &PA,
+											const double *b,
+											double *Pb,
+											std::vector<std::vector<int>> &color_list,
+											std::vector<int> &ordering,
+											std::vector<int> &reverse_ordering,
+											int num_colors);
+
+		// Make Algebraic Block
+		static void makeAlgebraicBlock(int size0,
+									   const SparseMatBaseD &A,
+									   SparseMatBaseD &Mb,
+									   std::vector<std::vector<int>> &block_list,
+									   int num_blocks);
+
+		// Sort by Algebraic Block Multi-Color Ordering
+		static void sortAlgebraicBlockMultiColor(int size0,
+												 const SparseMatBaseD &A,
+												 SparseMatBaseD &PA,
+												 const double *b,
+												 double *Pb,
+												 std::vector<std::vector<int>> &block_list,
+												 std::vector<std::vector<int>> &color_list,
+												 std::vector<int> &ordering,
+												 std::vector<int> &reverse_ordering,
+												 int num_blocks,
+												 int num_colors);
+
+		// ICCG Method using ABMC ordering
+		static bool parallelIccgSolv(int size0,
+									 const SparseMatBaseD &A,
+									 const SparseMatBaseD &L,
+									 const SparseMatBaseD &Lt,
+									 std::vector<std::vector<int>> &block_list,
+									 std::vector<std::vector<int>> &color_list,
+									 const double *diagD,
+									 const double *b,
+									 double *x,
+									 double eps,
+									 int numItr);
+
+		// solve [L][D][Lt]{x} = {b} for ICCG solver using ABMC ordering
+		static void parallelIcSolv(int size0,
+								   const SparseMatBaseD &L,
+								   const SparseMatBaseD &Lt,
+								   std::vector<std::vector<int>> &block_list,
+								   std::vector<std::vector<int>> &color_list,
+								   const double *diagD,
+								   const Eigen::VectorXd &b, Eigen::VectorXd &x);
+
+		static bool solveICCGwithABMC(const slv_int size0,
+									  const double conv_cri,
+									  const int max_ite,
+									  const double accera,
+									  const double normB,
+									  const SparseMat &matA,
+									  double *vec_b,
+									  double *vec_x,
+									  int num_blocks,
+									  int num_colors);
 	};
 
 	/* end of namespace */

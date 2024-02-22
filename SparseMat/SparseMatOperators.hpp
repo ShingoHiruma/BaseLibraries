@@ -18,7 +18,6 @@ namespace SRLfem
 		friend class SparseMat;
 		friend class SparseMatC;
 		friend class MatSolvers;
-		friend class ABMCICCG;
 
 	private:
 		/* 行列ベクトル積 */

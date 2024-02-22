@@ -18,7 +18,6 @@ namespace SRLfem
 		friend class SparseMat;
 		friend class SparseMatOperators;
 		friend class MatSolvers;
-		friend class ABMCICCG;
 
 	private:
 		SparseMatBaseC *matrix;
