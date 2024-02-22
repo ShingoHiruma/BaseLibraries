@@ -1,4 +1,4 @@
-﻿#include "CommonFuncs.hpp"
+#include "CommonFuncs.hpp"
 
 #include <BasicDefinesc.hpp>
 

@@ -1,10 +1,10 @@
 project(MatTest CXX)
-#o—Íæ‚Íƒx[ƒX
+#å‡ºåŠ›å…ˆã¯ãƒ™ãƒ¼ã‚¹
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Basedir}/build)
 
-#ƒRƒ“ƒpƒCƒ‹İ’è
+#ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«è¨­å®š
 add_executable(testMat.out main.cpp)
-#ƒIƒvƒVƒ‡ƒ“‚Æƒ‰ƒCƒuƒ‰ƒŠƒŠƒ“ƒN‚Ìİ’è
+#ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã¨ãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒªãƒ³ã‚¯ã®è¨­å®š
 if(CMAKE_CXX_COMPILER MATCHES "icpc")
  message("Intel Classical Compiler use in Example !") 
  target_compile_options(testMat.out PUBLIC -std=c++14 -O3 -I${Basedir} -qopenmp -ipo)

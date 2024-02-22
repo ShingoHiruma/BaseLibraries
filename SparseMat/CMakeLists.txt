@@ -13,6 +13,7 @@ add_library(SparseMat
     MatSolvers_ICCOCG.cpp
     MatSolvers_Eigen.cpp
     MatSolvers_MKL.cpp
+    MatSolvers_ABMCICCG.cpp
 )
 #オプションとライブラリリンクの設定
 if(CMAKE_CXX_COMPILER MATCHES "icpc")

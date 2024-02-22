@@ -1,4 +1,4 @@
-﻿#include "Mt.hpp"
+#include "Mt.hpp"
 
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */
 namespace SRLfem{

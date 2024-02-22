@@ -1,4 +1,4 @@
-﻿#ifndef DEF_MT_C11_DEFTYPE0_BASICS
+#ifndef DEF_MT_C11_DEFTYPE0_BASICS
 #define DEF_MT_C11_DEFTYPE0_BASICS
 
 #include <cstdlib>
