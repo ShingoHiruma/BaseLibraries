@@ -8,6 +8,9 @@
 #include "SparseMat.hpp"
 #include "SparseMatC.hpp"
 #include <cfloat>
+#include <queue>
+#include <vector>
+#include <chrono>
 
 #ifdef OMP_USING_MAT_SOL
 #include <omp.h>

@@ -11,6 +11,7 @@ add_library(SparseMat
     SparseMatOperators.cpp
     MatSolvers_ICCG.cpp
     MatSolvers_ICCOCG.cpp
+    MatSolvers_ABMCICCG.cpp
     MatSolvers_Eigen.cpp
     MatSolvers_MKL.cpp
 )

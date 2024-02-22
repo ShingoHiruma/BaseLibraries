@@ -7,7 +7,7 @@ using namespace std;
 #include <SparseMat/SparseMat.hpp>
 #include <SparseMat/SparseMatC.hpp>
 #include <SparseMat/SparseMatOperators.hpp>
-#include <SparseMat/MatSolvers.hpp>
+#include <SparseMat/MatSolversICCG.hpp>
 
 #ifdef IS_WINDOWS_SISTEM
 #ifdef _DEBUG
@@ -104,7 +104,8 @@ int main(int argc, char *argv[])
 	auto start = std::chrono::high_resolution_clock::now(); // record start time
 	omp_set_num_threads(1);
 	std::cout << "ICCG solver (1 core)" << std::endl;
-	bool bl1 = SRLfem::MatSolvers::solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
+	SRLfem::MatSolversICCG solver;
+	bool bl1 = solver.solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
 	auto end = std::chrono::high_resolution_clock::now();			  // record end time
 	std::chrono::duration<double, std::milli> duration = end - start; // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
 	omp_set_num_threads(20);
 	std::cout << "ICCG solver (20 core)" << std::endl;
 	start = std::chrono::high_resolution_clock::now(); // record start time
-	bool bl2 = SRLfem::MatSolvers::solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
+	bool bl2 = solver.solveICCG(numRows, epsilon, max_itr, accera, matrix, vec_b, results00);
 	end = std::chrono::high_resolution_clock::now(); // record end time
 	duration = end - start;							 // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
 
 	std::cout << "ICCG solver with ABMC ordering (20 core)" << std::endl;
 	start = std::chrono::high_resolution_clock::now(); // record start time
-	bool bl3 = SRLfem::MatSolvers::solveICCGwithABMC(numRows, epsilon, max_itr, accera, normB, matrix, vec_b, results00, 512, 40);
+	bool bl3 = solver.solveICCGwithABMC(numRows, epsilon, max_itr, accera, normB, matrix, vec_b, results00, 512, 40);
 	end = std::chrono::high_resolution_clock::now(); // record end time
 	duration = end - start;							 // calculate duration (ms)
 	std::cout << "Total: " << duration.count() << "ms" << std::endl;
